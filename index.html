@@ -187,6 +187,34 @@ svg.chart text { fill: var(--muted); font-family: var(--f-mono); font-size: 11px
 .timeline li.done { background: var(--rev-bg); color: var(--rev) }
 .timeline li.now { background: var(--rev); color: var(--panel); font-weight: 600 }
 
+/* content: photos, posts, blogs, emails */
+.ph-img { position: relative; border-radius: 6px; overflow: hidden; aspect-ratio: 4 / 3; max-width: 100%; background: var(--wood, #8A5A3B); background-image: repeating-linear-gradient(100deg, rgb(255 255 255 / .07) 0 3px, transparent 3px 11px), repeating-linear-gradient(80deg, rgb(0 0 0 / .10) 0 2px, transparent 2px 17px), radial-gradient(ellipse at 30% 60%, rgb(0 0 0 / .25) 0 6%, transparent 7%) }
+.ph-img span { position: absolute; left: 6px; bottom: 6px; font-size: 11px; font-weight: 600; color: #FFFFFF; background: rgb(0 0 0 / .55); padding: 1px 6px; border-radius: 3px }
+.w-walnut { --wood: #5B3A29 } .w-oak { --wood: #B8925A } .w-maple { --wood: #D9BE8C } .w-cherry { --wood: #95492C } .w-shop { --wood: #6B6F66 } .w-slab { --wood: #7A4E32 }
+.qgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 10px }
+.qitem { text-align: left; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 8px; cursor: pointer; display: flex; flex-direction: column; gap: 6px; min-width: 0 }
+.qitem:hover, .qitem:focus-visible { border-color: var(--ink); outline: none }
+.qitem b { font-size: 13px; line-height: 1.3 }
+.qitem small { color: var(--muted); font-size: 12px }
+.chips { display: flex; flex-wrap: wrap; gap: 4px }
+.chip { font-size: 11px; font-weight: 600; padding: 1px 7px; border-radius: 99px; background: var(--chip); color: var(--muted); white-space: nowrap }
+.pgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px }
+.pcell { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--muted) }
+.caption { font-size: 14px; white-space: pre-wrap; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px }
+.check { list-style: none; padding: 0; margin: 0; font-size: 14px }
+.check li { padding: 3px 0 }
+.check li::before { content: "✓ "; color: var(--good); font-weight: 700 }
+.check li.x::before { content: "! "; color: var(--warn) }
+.mailstrip { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; margin-top: 14px }
+.mail { text-align: left; background: var(--panel); border: 1px dashed var(--line); border-radius: 8px; padding: 10px 14px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 10px }
+.mail:hover, .mail:focus-visible { border-color: var(--ink); outline: none }
+.mail small { display: block; color: var(--muted) }
+.emailview { max-width: 640px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 18px 20px }
+.emailview .hdr { font-size: 13px; color: var(--muted); border-bottom: 1px solid var(--line); padding-bottom: 8px; margin-bottom: 12px }
+.emailview h4 { margin: 14px 0 4px; font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--c, var(--muted)) }
+.emailview p { margin: 0 0 6px }
+.emailview table td { padding: 4px 8px }
+
 /* worker phone view */
 .phone { max-width: 360px; margin: 0 auto; background: var(--panel); border: 1px solid var(--line); border-radius: 22px; padding: 18px 16px; box-shadow: 0 8px 30px rgb(0 0 0 / .12) }
 .phone h3 { margin-bottom: 8px }
@@ -525,8 +553,37 @@ flowchart TB
     { t: 'Ticket T-5541 · J. Morrison', s: 'When will the bar top be ready?', v: 'ticket:T-5541' },
     { t: 'Ridgeway Renovations', s: 'Contractor · 3 job sites · $4,120 over 45 days', v: 'account:ridgeway' },
     { t: 'Walnut 8/4', s: '940 bf needed · 520 on hand', v: 'wood:walnut' },
-    { t: 'TikTok Ads', s: 'Return 0.9× this month', v: 'channel:tiktok' }
+    { t: 'TikTok Ads', s: 'Return 0.9× this month', v: 'channel:tiktok' },
+    { t: 'Website conversion analysis', s: '1.8% · by device, source, page and product', v: 'conv:site' },
+    { t: 'Photo library', s: '1,284 photos from the Google Sheet', v: 'photos:all' },
+    { t: 'Blog draft: How to choose a live-edge slab', s: 'Waiting for approval', v: 'blog:B-31' },
+    { t: 'Morning email', s: 'Today, 7:00 a.m.', v: 'email:daily' },
+    { t: 'Weekly email', s: 'Monday', v: 'email:weekly' }
   ];
+  /* Photos come from the photo list in Google Sheets (one row per photo, with its Drive link and tags). */
+  var PHOTOS = [
+    { id: 'IMG-0412', w: 'walnut', tag: 'Walnut slab table', sp: 'Walnut', kind: 'Finished project', people: 'No', used: '23 days ago', n: 2 },
+    { id: 'IMG-0398', w: 'oak', tag: 'White oak stair treads', sp: 'White oak', kind: 'Installed', people: 'No', used: 'Never', n: 0 },
+    { id: 'IMG-0377', w: 'slab', tag: 'Slab rack, new arrivals', sp: 'Mixed', kind: 'Stock', people: 'No', used: '9 days ago', n: 4 },
+    { id: 'IMG-0365', w: 'maple', tag: 'Maple butcher block', sp: 'Hard maple', kind: 'Finished project', people: 'No', used: '41 days ago', n: 1 },
+    { id: 'IMG-0351', w: 'cherry', tag: 'Cherry floating shelves', sp: 'Cherry', kind: 'Finished project', people: 'Yes', used: 'Never', n: 0 },
+    { id: 'IMG-0340', w: 'shop', tag: 'Planer in the shop', sp: '–', kind: 'Shop', people: 'Yes', used: '3 days ago', n: 6 },
+    { id: 'IMG-0333', w: 'walnut', tag: 'Walnut bar top, epoxy fill', sp: 'Walnut', kind: 'In progress', people: 'No', used: '15 days ago', n: 1 },
+    { id: 'IMG-0329', w: 'oak', tag: 'Oak mantel, before and after', sp: 'White oak', kind: 'Finished project', people: 'No', used: 'Never', n: 0 }
+  ];
+  var POSTS = [
+    { id: 'S-88', ph: 0, day: 'Tue 6:30 p.m.', plat: ['Instagram', 'Facebook'], title: 'Walnut slab dining table, delivered', st: 'Waiting for approval' },
+    { id: 'S-89', ph: 1, day: 'Wed 12:00 p.m.', plat: ['Pinterest', 'Instagram'], title: 'Stair treads: 14 risers in white oak', st: 'Waiting for approval' },
+    { id: 'S-90', ph: 2, day: 'Thu 7:00 p.m.', plat: ['TikTok', 'Instagram'], title: 'New slab arrivals: which would you pick?', st: 'Waiting for approval' },
+    { id: 'S-91', ph: 3, day: 'Fri 12:00 p.m.', plat: ['Facebook', 'Pinterest'], title: 'Butcher block care in 3 steps', st: 'Scheduled' },
+    { id: 'S-92', ph: 4, day: 'Sat 10:00 a.m.', plat: ['Instagram'], title: 'Cherry shelves: customer’s finished wall', st: 'Scheduled' }
+  ];
+  var BLOGS = [
+    { id: 'B-31', ph: 0, title: 'How to choose a live-edge slab for a dining table', kw: 'live edge slab', vol: '1,900/mo', st: 'Waiting for approval' },
+    { id: 'B-32', ph: 1, title: 'White oak vs red oak for stair treads', kw: 'white oak stair treads', vol: '880/mo', st: 'Draft' },
+    { id: 'B-33', ph: 3, title: 'How to care for a butcher block countertop', kw: 'butcher block care', vol: '2,400/mo', st: 'Scheduled Oct 21' }
+  ];
+  function photo(i, label) { var p = PHOTOS[i]; return '<div class="ph-img w-' + p.w + '"><span>' + esc(label || p.id) + '</span></div>'; }
 
   /* ---------- home ---------- */
   function home() {
@@ -545,6 +602,8 @@ flowchart TB
         return '<button type="button" class="tile" data-cat="' + A.cat + '"' + go('area', x.a) + '><span class="hd"><span class="nm">' + A.name + '</span><span class="dot ' + x.st + '" title="' + x.st + '"></span></span>' +
           '<span class="big">' + x.big + '</span><span class="lbl">' + x.lbl + '</span><span class="cmp">' + x.cmp + '</span>' + spark(x.sp, 'var(--c)') + '<span class="sec2">' + x.sec + '</span></button>';
       }).join('') + '</div>' +
+      '<div class="mailstrip"><button type="button" class="mail"' + go('email', 'daily') + '><span><b>Morning email</b><small>Sent today 7:00 a.m. · counts per area + link here</small></span><span class="go">Preview →</span></button>' +
+      '<button type="button" class="mail"' + go('email', 'weekly') + '><span><b>Weekly email</b><small>Mondays 7:00 a.m. · results, pipeline, marketing briefing</small></span><span class="go">Preview →</span></button></div>' +
       '<p class="roleNote">' + (role === 'owner' ? 'Owner home. Customer support and the ops manager land on their own area instead; workers get the phone view. Click any tile to go one level down.' : '') + '</p>';
   }
 
@@ -554,7 +613,7 @@ flowchart TB
       ['rev', 'Quote Q-1182: walnut dining table, $4,250 (41% margin)', 'Sales', 'quote:Q-1182'],
       ['rev', 'Price update: white oak 4/4 FAS $9.80 → $10.45 per bf (landed cost up 6%)', 'Sales', ''],
       ['rev', 'Reply to new 2-star Google review', 'Marketing', ''],
-      ['rev', 'This week’s 5 social posts', 'Marketing', ''],
+      ['rev', '3 social posts and 1 blog post waiting for approval', 'Marketing', 'post:S-88'],
       ['sup', '2 customers waiting over 24 hours (one is a $3,800 project)', 'Support · alert', 'ticket:T-5541'],
       ['sup', '3 drafted replies ready to send', 'Support', 'area:support'],
       ['ops', 'Payroll: 6 staff, 214.5 h, 9 h overtime (ops manager approved)', 'Operations', ''],
@@ -618,7 +677,7 @@ flowchart TB
         '<tr><td>Google search</td><td class="n">1,180</td><td class="n">24</td><td class="n">$5,960</td><td class="n">2.0%</td></tr><tr><td>Email (Klaviyo)</td><td class="n">270</td><td class="n">11</td><td class="n">$2,040</td><td class="n">4.1%</td></tr>' +
         '<tr><td>Instagram</td><td class="n">640</td><td class="n">9</td><td class="n">$2,310</td><td class="n">1.4%</td></tr><tr><td>Pinterest</td><td class="n">390</td><td class="n">7</td><td class="n">$1,480</td><td class="n">1.8%</td></tr>' +
         '<tr><td>Ambassadors</td><td class="n">150</td><td class="n">5</td><td class="n">$1,120</td><td class="n">3.3%</td></tr><tr><td>TikTok</td><td class="n">520</td><td class="n">2</td><td class="n">$310</td><td class="n down">0.4%</td></tr></tbody></table></div>') +
-      card('c5', 'Purchase funnel (7 days)', 1, '<div class="funnel" data-cat="rev">' + [['Visits', 3150, '100%'], ['Viewed a product', 1640, '52%'], ['Added to cart', 310, '9.8%'], ['Started checkout', 142, '4.5%'], ['Bought', 58, '1.8%']].map(function (f) {
+      card('c5', 'Purchase funnel (7 days)', 1, '<button type="button" class="btn" style="margin-bottom:10px"' + go('conv', 'site') + '>Full conversion analysis →</button>' +'<div class="funnel" data-cat="rev">' + [['Visits', 3150, '100%'], ['Viewed a product', 1640, '52%'], ['Added to cart', 310, '9.8%'], ['Started checkout', 142, '4.5%'], ['Bought', 58, '1.8%']].map(function (f) {
         return '<div class="frow"><span>' + f[0] + '</span><div class="fbar"><span style="width:' + (f[1] / 3150 * 100) + '%"></span></div><span class="n">' + f[2] + '</span></div>'; }).join('') +
         '</div><p class="soonNote" style="color:var(--bad)">Checkout drop-off on phones up 9% this week.</p>') +
       card('c6', 'Ad spend and return (month to date)', 1, '<div class="scroll"><table><thead><tr><th>Channel</th><th class="n">Spent</th><th class="n">Budget</th><th class="n">Sales</th><th class="n">Return</th></tr></thead><tbody>' +
@@ -626,7 +685,12 @@ flowchart TB
         '<tr><td>Pinterest Ads</td><td class="n">$310</td><td class="n">$400</td><td class="n">$1,330</td><td class="n up">4.3×</td></tr><tr class="go"' + go('channel', 'tiktok') + '><td>TikTok Ads <span class="pill bad">over budget</span></td><td class="n">$420</td><td class="n">$400</td><td class="n">$380</td><td class="n down">0.9×</td></tr></tbody></table></div>') +
       card('c6', 'This week’s recommendations', 1, '<div class="rec"><b>Move $200 from TikTok Ads to Pinterest.</b><span>TikTok returns less than it costs; Pinterest returns 4.3× on live-edge pins.</span></div>' +
         '<div class="rec"><b>Show delivery cost on product pages.</b><span>Phone checkout drop-off is up 9%.</span></div><div class="rec"><b>Write a walnut slab table buying guide.</b><span>Search clicks for the topic are up 40%.</span></div>') +
-      card('c4', 'Reviews and content', 1, '<div class="mini" data-cat="rev"><div><b>4.8★</b><span>Google, 212 reviews</span></div><div><b>1</b><span>Reply needed</span></div><div><b>5</b><span>Posts this week</span></div></div>') +
+      card('c12', 'Content: posts and blogs', 1,
+        '<div class="mini" data-cat="rev"><div><b>3</b><span>Posts waiting for approval</span></div><div><b>2</b><span>Posts scheduled</span></div><div><b>1</b><span>Blog waiting for approval</span></div><div><b>1,284</b><span>Photos in the library</span></div></div>' +
+        '<div class="qgrid">' + POSTS.map(function (s) { return '<button type="button" class="qitem"' + go('post', s.id) + '>' + photo(s.ph) + '<b>' + esc(s.title) + '</b><span class="chips">' + s.plat.map(function (x) { return '<span class="chip">' + x + '</span>'; }).join('') + '</span><small>' + s.day + ' · ' + (s.st === 'Scheduled' ? '<span class="up">Scheduled</span>' : '<span class="wa">Needs approval</span>') + '</small></button>'; }).join('') +
+        BLOGS.map(function (b) { return '<button type="button" class="qitem"' + go('blog', b.id) + '>' + photo(b.ph, 'Blog') + '<b>' + esc(b.title) + '</b><span class="chips"><span class="chip">Blog</span><span class="chip">' + b.vol + '</span></span><small>' + (b.st.indexOf('Waiting') === 0 ? '<span class="wa">Needs approval</span>' : b.st) + '</small></button>'; }).join('') + '</div>' +
+        '<div class="actions"><button type="button" class="btn"' + go('photos', 'all') + '>Photo library →</button><button type="button" class="btn act">Approve all 3 posts</button><button type="button" class="btn">Add a post idea</button></div>') +
+      card('c4', 'Reviews and content', 1,'<div class="mini" data-cat="rev"><div><b>4.8★</b><span>Google, 212 reviews</span></div><div><b>1</b><span>Reply needed</span></div><div><b>5</b><span>Posts this week</span></div></div>') +
       card('c4', 'Social (5 platforms)', 2, '<div class="scroll"><table><thead><tr><th>Platform</th><th class="n">Followers</th><th class="n">30-day</th></tr></thead><tbody><tr><td>Instagram</td><td class="n">8,420</td><td class="n up">+3.1%</td></tr><tr><td>Facebook</td><td class="n">5,110</td><td class="n">+0.6%</td></tr><tr><td>TikTok</td><td class="n">3,980</td><td class="n up">+7.4%</td></tr><tr><td>Pinterest</td><td class="n">2,240</td><td class="n up">+5.2%</td></tr><tr><td>YouTube</td><td class="n">640</td><td class="n">+1.9%</td></tr></tbody></table></div>') +
       card('c4', 'SEO and competitors', 2, '<ul class="list"><li data-cat="rev"><div class="what">"live edge slab ontario" up to #3<div class="who">Search Console</div></div><span class="pill good">▲ 4</span></li><li data-cat="rev"><div class="what">A competitor cut white oak 8%<div class="who">Weekly price check</div></div><span class="pill warn">Watch</span></li><li data-cat="rev"><div class="what">Ambassador sales $1,120 this week<div class="who">Top: 2 of 11 ambassadors</div></div></li></ul>') +
       '</div>';
@@ -732,6 +796,73 @@ flowchart TB
         '<div class="actions"><button type="button" class="btn solid act">Send drafted reminder</button><button type="button" class="btn">Hold new orders</button></div></div>' +
         '<div class="card"><header><h3>Terms</h3></header><dl class="kv"><dt>Terms</dt><dd>Net 30</dd><dt>Credit limit</dt><dd>$10,000</dd><dt>Pricing</dt><dd>Trade tier 2 (−12%)</dd><dt>This year</dt><dd>$31,400 sales</dd></dl></div></div>';
     }
+    else if (kind === 'post') {
+      A = 'marketing';
+      var s = POSTS.filter(function (x) { return x.id === id; })[0], pp = PHOTOS[s.ph];
+      body = '<div class="detail"><div class="card"><header><h3>Social post ' + s.id + ' · ' + s.day + '</h3><div class="meta"><span class="chips">' + s.plat.map(function (x) { return '<span class="chip">' + x + '</span>'; }).join('') + '</span></div></header>' +
+        '<div style="max-width:420px">' + photo(s.ph, pp.id + ' · ' + pp.tag) + '</div>' +
+        '<h3 style="margin:14px 0 6px">Caption (drafted in the owner’s voice)</h3><div class="caption">' + esc(s.title) + '.\n\nOne slab, one family table. This ' + pp.sp.toLowerCase() + ' piece was flattened, filled and finished in our shop, then delivered last week.\n\nThinking about a table of your own? Slabs are in stock now; link in bio.\n\n#liveedge #' + pp.sp.toLowerCase().replace(/\W/g, '') + ' #woodworking #madeincanada #slabtable</div>' +
+        '<div class="actions"><button type="button" class="btn solid act">Approve and schedule</button><button type="button" class="btn">Edit caption</button><button type="button" class="btn"' + go('photos', 'all') + '>Swap photo</button></div></div>' +
+        '<div class="card"><header><h3>Checks before it posts</h3></header><ul class="check"><li>Photo from the library (' + pp.id + '), not used in the last 7 days</li><li>Subject not posted in the last 7 days</li><li>5 hashtags or fewer, in the caption</li><li>Link tagged so sales are tracked back to this post</li><li>Best time for this platform from past results</li></ul>' +
+        '<p class="soonNote">After approval it posts automatically at the scheduled time. Results show up in Social analytics.</p></div></div>';
+    } else if (kind === 'blog') {
+      A = 'marketing';
+      var bl = BLOGS.filter(function (x) { return x.id === id; })[0];
+      body = '<div class="detail"><div class="card"><header><h3>Blog ' + bl.id + '</h3><div class="meta"><span class="pill warn">' + bl.st + '</span></div></header>' +
+        '<div style="max-width:520px">' + photo(bl.ph, 'Main photo · ' + PHOTOS[bl.ph].id) + '</div>' +
+        '<h2 style="margin:14px 0 6px;font-size:22px">' + esc(bl.title) + '</h2>' +
+        '<p style="margin:0 0 10px;color:var(--muted)">About 1,400 words · 4 photos from the library · links to 3 products</p>' +
+        '<ul class="plain"><li>What makes a good dining-table slab (thickness, width, moisture)</li><li>Walnut, oak, maple and cherry compared, with our real prices per board foot</li><li>Flattening, epoxy fill and finish: what the work involves</li><li>Delivery, legs and care</li><li>Shop the slabs in stock (product links)</li></ul>' +
+        '<div class="actions"><button type="button" class="btn solid act">Approve and schedule</button><button type="button" class="btn">Open full draft</button><button type="button" class="btn">Request changes</button></div></div>' +
+        '<div class="card"><header><h3>Why this topic</h3></header><dl class="kv"><dt>Search term</dt><dd>' + bl.kw + '</dd><dt>Searches</dt><dd>' + bl.vol + ' in Canada (Semrush)</dd><dt>Our position</dt><dd>Not ranking yet</dd><dt>Publishes to</dt><dd>Shopify blog</dd></dl>' +
+        '<ul class="check" style="margin-top:10px"><li>Facts and prices from our own data</li><li>Title and description sized for Google</li><li>Photos have descriptions for search</li><li class="x">One photo needs a caption</li></ul></div></div>';
+    } else if (kind === 'photos') {
+      A = 'marketing';
+      body = '<div class="card"><header><h3>Photo library · from the Google Sheet</h3><div class="meta"><span class="ph">1,284 photos</span></div></header>' +
+        '<p style="margin:0 0 12px;color:var(--muted);font-size:14px">The hub reads the photo list in Google Sheets (one row per photo, with its Drive link and tags). AI fills in missing tags. The post and blog writers pick from here, and a photo isn’t reused within 7 days.</p>' +
+        '<div class="ctrls" style="margin-bottom:12px"><select aria-label="Species"><option>All species</option><option>Walnut</option><option>White oak</option><option>Hard maple</option><option>Cherry</option></select><select aria-label="Type"><option>All types</option><option>Finished project</option><option>In progress</option><option>Stock</option><option>Shop</option></select><select aria-label="Use"><option>Any</option><option>Never used</option><option>Not used in 30 days</option></select><button type="button" class="btn">Add photos</button></div>' +
+        '<div class="pgrid">' + PHOTOS.map(function (p, i) { return '<div class="pcell">' + photo(i) + '<b style="color:var(--ink)">' + esc(p.tag) + '</b><span>' + p.sp + ' · ' + p.kind + '</span><span>Used ' + p.n + '× · last ' + p.used + '</span></div>'; }).join('') + '</div></div>';
+    } else if (kind === 'conv') {
+      A = 'marketing';
+      var tbl = function (head, rows) { return '<div class="scroll"><table><thead><tr>' + head.map(function (h, i) { return '<th' + (i ? ' class="n"' : '') + '>' + h + '</th>'; }).join('') + '</tr></thead><tbody>' + rows.map(function (r) { return '<tr>' + r.map(function (c, i) { return '<td' + (i ? ' class="n"' : '') + '>' + c + '</td>'; }).join('') + '</tr>'; }).join('') + '</tbody></table></div>'; };
+      body = '<div class="mini" data-cat="rev"><div><b>1.8%</b><span>Conversion, 30 days (was 2.1%)</span></div><div><b>9.8%</b><span>Add to cart</span></div><div><b>41%</b><span>Checkouts completed</span></div><div><b>$212</b><span>Average order</span></div><div><b>$3.82</b><span>Sales per visit</span></div><div><b>$4,860</b><span>Abandoned checkouts, 30 days</span></div></div>' +
+        '<div class="grid">' +
+        card('c8', 'Conversion rate, last 12 weeks', 1, '<div class="scroll"><svg class="chart" id="convChart" viewBox="0 0 640 200" width="100%" role="img" aria-label="Weekly conversion rate, last 12 weeks"></svg></div>') +
+        card('c4', 'Where people drop off', 1, '<div class="funnel" data-cat="rev">' + [['Visits', 100, '12,600'], ['Viewed product', 52, '6,550'], ['Added to cart', 9.8, '1,235'], ['Started checkout', 4.4, '555'], ['Bought', 1.8, '228']].map(function (f) {
+          return '<div class="frow"><span>' + f[0] + '</span><div class="fbar"><span style="width:' + f[1] + '%"></span></div><span class="n">' + f[2] + '</span></div>'; }).join('') + '</div><p class="soonNote">Biggest loss: product view → add to cart (81% leave).</p>') +
+        card('c6', 'By device', 1, tbl(['Device', 'Visits', 'Conv.', 'vs last month'], [['Phone', '8,190', '1.2%', '<span class="down">▼ 0.5</span>'], ['Desktop', '3,910', '3.0%', '<span class="up">▲ 0.1</span>'], ['Tablet', '500', '2.2%', '0.0']])) +
+        card('c6', 'By traffic source', 1, tbl(['Source', 'Visits', 'Conv.', 'Sales/visit'], [['Email', '1,080', '4.1%', '$8.70'], ['Ambassadors', '600', '3.3%', '$7.10'], ['Google search', '4,720', '2.0%', '$4.30'], ['Pinterest', '1,560', '1.8%', '$3.90'], ['Instagram', '2,560', '1.4%', '$3.10'], ['TikTok', '2,080', '0.4%', '$0.60']])) +
+        card('c7', 'Landing pages', 1, tbl(['Page people land on', 'Visits', 'Conv.', 'Note'], [['Live-edge slabs collection', '2,310', '2.9%', '<span class="up">best</span>'], ['Home page', '3,050', '1.6%', ''], ['Cutting boards', '1,420', '2.4%', ''], ['Stair treads', '980', '0.6%', '<span class="down">no price shown</span>'], ['Blog: epoxy river tables', '1,760', '0.3%', '<span class="wa">no product links</span>']])) +
+        card('c5', 'By product type', 1, tbl(['Category', 'Conv.', 'Avg order'], [['Cutting boards and gifts', '3.4%', '$88'], ['Slabs', '1.1%', '$640'], ['Dimensional lumber', '1.9%', '$310'], ['Custom (quote requests)', '2.6%', '–']])) +
+        card('c12', 'What to fix first', 1, '<div class="rec"><b>Show delivery cost on product pages.</b><span>Phone checkout completion fell to 33%; most leave at the shipping step. Expected: +0.2 to 0.3 pts.</span></div>' +
+          '<div class="rec"><b>Add a price or "from $" to the stair treads page.</b><span>980 visits, 0.6% conversion; visitors can’t see a price without a quote. Expected: +$1,500/month.</span></div>' +
+          '<div class="rec"><b>Add product links to the epoxy river table blog post.</b><span>1,760 visits a month with almost no sales.</span></div>' +
+          '<div class="rec"><b>Abandoned checkout email: add a slab photo and a "questions? call us" line.</b><span>$4,860 abandoned in 30 days; the email recovers 6% today.</span></div>' +
+          '<p class="soonNote">Each fix goes on the to-do list; the hub tracks conversion before and after, so you can see which changes paid off.</p>') +
+        '</div>';
+    } else if (kind === 'email') {
+      var daily = id === 'daily';
+      body = '<div class="emailview"><div class="hdr">To: owner · ' + (daily ? 'Tue Oct 13, 7:00 a.m.' : 'Mon Oct 12, 7:00 a.m.') + '<br>Subject: <b>' + (daily ? 'Knotty Lumber: Tuesday at a glance' : 'Knotty Lumber: week of Oct 5') + '</b></div>' +
+        (daily ?
+          '<p>7 approvals and 3 alerts are waiting. <b>Open the hub →</b></p>' +
+          '<h4 data-cat="rev">Sales</h4><p>$4,860 yesterday (▲12%) · 2 quotes sent · 1 deposit paid</p>' +
+          '<h4 data-cat="rev">Marketing</h4><p>412 visits · 1.9% conversion · ad return 4.1× · 3 posts to approve</p>' +
+          '<h4 data-cat="sup">Customer support</h4><p>9 open · <b style="color:var(--bad)">2 waiting over 24 h</b> · first reply 3.2 h</p>' +
+          '<h4 data-cat="ops">Operations</h4><p>11 of 14 jobs on time · P-214 late · walnut 8/4 short in 11 days · 2 deliveries today</p>' +
+          '<h4 data-cat="fnd">Money</h4><p>Cash $38.2k · $6,380 overdue · 3 receipts to post</p>' +
+          '<p class="soonNote">Short on purpose: counts per area and one link. The details live in the hub.</p>'
+          :
+          '<h4 data-cat="rev">Results</h4><table><tbody><tr><td>Sales</td><td class="n">$31,700</td><td class="n up">▲ 8%</td></tr><tr><td>Online conversion</td><td class="n">1.9%</td><td class="n down">▼ 0.2</td></tr><tr><td>Quotes won</td><td class="n">6 of 15</td><td class="n">40%</td></tr><tr><td>Profit (month to date)</td><td class="n">$7,300</td><td class="n up">on budget</td></tr></tbody></table>' +
+          '<h4 data-cat="rev">Pipeline</h4><p>14 projects ($38,200) · 3 late · 9 quotes open ($9,100)</p>' +
+          '<h4 data-cat="rev">Marketing briefing</h4><p>Google search up 11%; TikTok ads below break-even; Pinterest live-edge pins strong. Competitor cut white oak 8%.</p>' +
+          '<h4 data-cat="rev">This week’s recommendations</h4><p>1. Move $200 TikTok → Pinterest. 2. Show delivery cost on product pages. 3. Approve the slab buying guide blog.</p>' +
+          '<h4 data-cat="sup">Customer support</h4><p>54 questions · 94% solved within a day · tariff questions up (new duty notice)</p>' +
+          '<h4 data-cat="ops">Operations and people</h4><p>Payroll ready: 214.5 h · order walnut 8/4 this week · forklift certificate renewal due</p>' +
+          '<h4 data-cat="fnd">Money</h4><p>13-week cash low $21.4k (week of Dec 7), above the $15k floor · $6,380 overdue (Ridgeway)</p>') +
+        '</div><div class="actions"><button type="button" class="btn">Change what’s in it</button><button type="button" class="btn">Add a recipient</button></div>';
+      return { area: null, html: '<div class="areaHead" data-cat="fnd"><h2>' + (daily ? 'Morning email' : 'Weekly email') + '</h2><span class="sum">' + (daily ? 'Every day at 7:00 a.m.' : 'Mondays at 7:00 a.m., plus monthly and quarterly versions') + '</span></div>' + body };
+    }
+    if (kind === 'conv') return { area: A, html: '<div class="areaHead" data-cat="rev"><h2>Website conversion</h2><span class="sum">Who buys, who doesn’t, where they drop off, and what to fix. From Shopify and GA4.</span></div>' + body };
     return { area: A, html: '<div class="areaHead" data-cat="' + AREAS[A].cat + '"><h2>' + AREAS[A].name + '</h2><span class="sum">Detail</span></div>' + body };
   }
 
@@ -750,6 +881,9 @@ flowchart TB
     if (p[0] === 'needs') return 'Needs you';
     if (p[0] === 'area') return AREAS[p[1]].name;
     if (p[0] === 'worker') return 'My jobs';
+    if (p[0] === 'email') return p[1] === 'daily' ? 'Morning email' : 'Weekly email';
+    if (p[0] === 'conv') return 'Website conversion';
+    if (p[0] === 'photos') return 'Photo library';
     return p[1] === 'walnut' ? 'Walnut 8/4' : p[1] === 'tiktok' ? 'TikTok Ads' : p[1] === 'ridgeway' ? 'Ridgeway Renovations' : p[1];
   }
   function render() {
@@ -765,11 +899,13 @@ flowchart TB
     }).join('');
     if (document.getElementById('salesChart')) salesChart();
     if (document.getElementById('cashChart')) cashChart();
+    if (document.getElementById('convChart')) convChart();
   }
   function open(v) {
     var p = v.split(':');
-    if (p[0] === 'area' || p[0] === 'needs') stack = [stack[0], v];
-    else if (['quote', 'project', 'ticket', 'wood', 'channel', 'account'].indexOf(p[0]) >= 0) {
+    if (stack[0] === 'worker') { document.getElementById('role').value = 'owner'; stack = ['home']; }
+    if (p[0] === 'area' || p[0] === 'needs' || p[0] === 'email') stack = [stack[0], v];
+    else if (['quote', 'project', 'ticket', 'wood', 'channel', 'account', 'post', 'blog', 'photos', 'conv'].indexOf(p[0]) >= 0) {
       var a = detail(p[0], p[1]).area, cur = stack[stack.length - 1];
       if (cur.indexOf('area:') !== 0 && cur !== 'needs') stack = [stack[0], 'area:' + a];
       if (stack[stack.length - 1].split(':')[0] === p[0]) stack.pop();
@@ -858,6 +994,20 @@ flowchart TB
     }
   }
 
+  function convChart() {
+    var svg = document.getElementById('convChart');
+    var all = [2.3, 2.2, 2.4, 2.1, 2.2, 2.0, 2.1, 1.9, 2.0, 1.8, 1.9, 1.8], ph = [1.8, 1.7, 1.8, 1.6, 1.6, 1.5, 1.5, 1.3, 1.4, 1.2, 1.3, 1.2];
+    var W = 640, H = 200, L = 44, R = 70, T = 10, B = 26, y = axes(svg, W, H, L, R, T, B, 3, 1, function (g) { return g + '%'; });
+    var step = (W - L - R) / (all.length - 1);
+    [[all, 'var(--rev)', 'All visits'], [ph, 'var(--warn)', 'Phones']].forEach(function (s) {
+      mk(svg, 'polyline', { points: s[0].map(function (v, i) { return (L + i * step) + ',' + y(v); }).join(' '), fill: 'none', stroke: s[1], 'stroke-width': 2.5 });
+      var lx = L + (s[0].length - 1) * step, ly = y(s[0][s[0].length - 1]);
+      mk(svg, 'circle', { cx: lx, cy: ly, r: 4, fill: s[1] });
+      mk(svg, 'text', { x: lx + 8, y: ly + 4 }).textContent = s[2] + ' ' + s[0][s[0].length - 1] + '%';
+    });
+    ['Jul 20', 'Aug 17', 'Sep 14', 'Oct 5'].forEach(function (t, i) { mk(svg, 'text', { x: L + [0, 4, 8, 11][i] * step, y: H - 8, 'text-anchor': 'middle' }).textContent = t; });
+  }
+
   setRole();
 
   /* =====================================================================
@@ -903,6 +1053,32 @@ flowchart TB
     'Each role lands on its own page: support on Customer support, the ops manager on Operations, workers on a phone view of today’s jobs.',
     'Patterns borrowed from the leading systems (NetSuite, Shopify, Zendesk, Odoo, and lumber yard systems such as BisTrack and Spruce), kept to five tiles.'
   ]), false);
+  var REUSE = [
+    ['Dashboard home with "needs your attention"', 'rev', 'Copy', ['Alerts first, then queues, then tiles; every alert links to the page that fixes it.', 'Becomes the Home screen and the "Needs you" bar.']],
+    ['Approvals and review queue', 'fnd', 'Copy', ['Shared review screen with Approve / Reject / Edit and an on-hold list; nothing publishes until approved.', 'Used for quotes, prices, posts, blogs, replies, receipts, payroll and purchase orders.']],
+    ['Social post pipeline', 'rev', 'Copy', ['AI writes next week’s posts; posts are rendered with their photos; approve, edit text or swap photo; scheduled automatically; marked posted when live.', 'Posting times per weekday, theme rotation, 7-day no-repeat check, captions and hashtags under house rules.', 'Change: photos come from the Google Sheet photo list; platforms widen to Facebook, TikTok and Pinterest.']],
+    ['Blog pipeline', 'rev', 'Adapt', ['Drop post files or generate from keywords → drafts with photos and internal links → review → publish or schedule.', 'Change: publishes to the Shopify blog; facts and prices from the business’s own data.']],
+    ['Photo handling', 'rev', 'Adapt', ['Image storage, picking and credits already built.', 'New: read the photo list in Google Sheets (Drive links + tags), AI fills missing tags, tracks when each photo was last used.']],
+    ['Morning email', 'fnd', 'Copy', ['7:00 a.m. daily: needs your attention, overnight jobs, key numbers, queues, warnings.', 'Each section runs on its own, so one failure becomes a warning instead of no email; a backup email if the job crashes.']],
+    ['Weekly emails', 'fnd', 'Copy', ['Weekly status and digest emails on a schedule.', 'Becomes the Monday weekly email; monthly and quarterly use the same pattern.']],
+    ['Job reports and failure alerts', 'fnd', 'Copy', ['After every scheduled job: step status, counts, warnings and a link to the run; emails only when something fails.']],
+    ['Email system with consent records', 'sup', 'Adapt', ['Sign-up with confirmation, unsubscribe and preferences, Approve & Schedule, send queue, deliverability stats, consent export for Canada’s anti-spam law.', 'Klaviyo stays for marketing email; this covers staff, customer-update and portal emails and the consent log.']],
+    ['Partner login and monthly reports', 'sup', 'Adapt', ['Magic-link login for outside users to see and edit their own page, plus a monthly emailed report.', 'Becomes the customer project portal and the ambassador portal.']],
+    ['CRM', 'rev', 'Copy', ['Contacts and companies with stages, activity log (email, call, visit, message), follow-ups.', 'Add: Square, Shopify and Klaviyo history on each customer.']],
+    ['To-do list / checklist', 'fnd', 'Copy', ['Grouped checklist with status, notes and add-item; recommendations land here.']],
+    ['Website traffic page', 'rev', 'Adapt', ['GA4, Search Console and Clarity numbers on a page and tiles.', 'Extended with Shopify orders for conversion by source, device, landing page and product.']],
+    ['Web page readers with AI extraction', 'rev', 'Adapt', ['Scheduled jobs read web pages, skip unchanged ones, and turn them into drafts for review.', 'Becomes competitor price checks and the tariff-notice watcher.']],
+    ['AI writing from our own facts', 'rev', 'Copy', ['SEO copy and FAQs written only from facts in the database.', 'Used for product descriptions, slab listings and the tariff FAQ.']],
+    ['Data checks', 'fnd', 'Adapt', ['Duplicate detection, cross-checks against Google, stale-data flags.', 'Used for duplicate customers and products, and stock counts that disagree.']],
+    ['Nightly backup and uptime check', 'fnd', 'Copy', ['Every table backed up nightly with a restore script; site checked every 6 hours.']],
+    ['Buttons that start background jobs', 'fnd', 'Copy', ['An admin button starts a longer job (e.g. "make drafts") in the cloud.']],
+    ['Click tracking', 'rev', 'Adapt', ['Tracked links with click and delivery reports.', 'Becomes ambassador links and tagged social/email links.']]
+  ];
+  html += l1('Already built: what’s reused', '<span class="ph">' + REUSE.length + ' pieces</span>',
+    '<p style="margin:0 0 10px;color:var(--muted)">Existing working code is copied into the business’s own repository and adapted. <b>Copy</b> = works almost as is. <b>Adapt</b> = same engine, new inputs or outputs. Built new: Square, Shopify and QuickBooks syncs, quoting, projects, hours and payroll, inventory and forecasting, the support inbox, staff roles, and the dashboard’s area pages.</p>' +
+    REUSE.map(function (r) {
+      return '<details class="l2 dim-able" data-cat="' + r[1] + '"><summary><span class="n">' + CHEV + esc(r[0]) + '</span><span class="ph' + (r[2] === 'Copy' ? ' p1' : '') + '">' + r[2] + '</span></summary><ul>' + r[3].map(function (i) { return '<li>' + esc(i) + '</li>'; }).join('') + '</ul></details>';
+    }).join(''), false);
   html += l1('Phases: what arrives when', '<span class="ph">About 8 weeks</span>', [1, 2, 3].map(function (p) {
     var mods = all.filter(function (m) { return m.pri === p; });
     return '<details class="l2"><summary><span class="n">' + CHEV + PHASE[p].name + ' · ' + PHASE[p].when + '</span><span class="counts">' + counts(mods) + '</span></summary>' +
