@@ -1,0 +1,951 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Knotty Lumber Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Spectral:wght@700&display=swap">
+<style>
+/* Layout: owner's control room. Clickable dashboard (home tiles → area page → detail), then the module flow, then the phased plan as a two-level accordion. */
+:root {
+  --bg: #F3F5F2;
+  --panel: #FFFFFF;
+  --ink: #17251F;
+  --muted: #5B6B63;
+  --line: #D9E0DB;
+  --forest: #1F4A3C;
+  --chip: #E8EEEA;
+  --good: #2E7D4F; --warn: #B26A00; --bad: #B3261E;
+  --leaf: #E10600;
+  --rev: #1E7A46; --rev-bg: #E3F2E8;
+  --sup: #2563B0; --sup-bg: #E3ECF8;
+  --ops: #A35F00; --ops-bg: #F8ECD9;
+  --fnd: #5E6873; --fnd-bg: #E9ECEF;
+  --f-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+  --f-logo: "Spectral", Georgia, "Times New Roman", serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #111916; --panel: #18231F; --ink: #E6EDE9; --muted: #9AABA2; --line: #2B3A34; --forest: #7FC4A6; --chip: #22302A;
+  --good: #6CC793; --warn: #E8A642; --bad: #F08A80; --leaf: #FF3B30;
+  --rev: #5FCB8C; --rev-bg: #173226; --sup: #7DAEF0; --sup-bg: #172539; --ops: #E8A642; --ops-bg: #33270F; --fnd: #A9B3BD; --fnd-bg: #262C31;
+  color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #111916; --panel: #18231F; --ink: #E6EDE9; --muted: #9AABA2; --line: #2B3A34; --forest: #7FC4A6; --chip: #22302A;
+  --good: #6CC793; --warn: #E8A642; --bad: #F08A80; --leaf: #FF3B30;
+  --rev: #5FCB8C; --rev-bg: #173226; --sup: #7DAEF0; --sup-bg: #172539; --ops: #E8A642; --ops-bg: #33270F; --fnd: #A9B3BD; --fnd-bg: #262C31;
+  color-scheme: dark }
+
+* { box-sizing: border-box }
+body { background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 15px; line-height: 1.5; margin: 0 }
+.wrap { max-width: 1180px; margin: 0 auto; padding-inline: 16px; padding-block: 0 56px }
+button { font: inherit; color: inherit }
+
+header.top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 24px; padding-block: 24px 14px }
+.brand { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 22px }
+.logo { font-family: var(--f-logo); font-weight: 700; color: var(--ink); line-height: 1; text-align: center; letter-spacing: .02em }
+.logo .l1 { font-size: 30px; display: flex; align-items: center; justify-content: center; white-space: nowrap }
+.logo .l1 svg { width: .92em; height: .92em; margin: 0 .02em; fill: var(--leaf) }
+.logo .l2 { font-size: 18px; margin-top: 4px; letter-spacing: .04em }
+.hub { border-left: 1px solid var(--line); padding-left: 22px }
+.hub h1 { font-family: var(--f-display); font-weight: 800; font-size: clamp(22px, 3vw, 30px); letter-spacing: -0.02em; margin: 0; color: var(--forest) }
+.hub p { color: var(--muted); margin: 0; font-size: 14px }
+@media (max-width: 560px) { .hub { border-left: 0; padding-left: 0 } }
+.stamp { font-family: var(--f-mono); font-size: 12px; background: var(--chip); padding: 4px 10px; border-radius: 4px; letter-spacing: .04em; text-transform: uppercase }
+
+nav.sec { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); border-bottom: 1px solid var(--line); display: flex; gap: 4px; overflow-x: auto; padding-block: 8px }
+nav.sec a { color: var(--ink); text-decoration: none; font-weight: 500; padding: 6px 12px; border-radius: 6px; white-space: nowrap }
+nav.sec a:hover, nav.sec a:focus-visible { background: var(--chip); outline: none }
+
+[data-cat="rev"] { --c: var(--rev); --cb: var(--rev-bg) }
+[data-cat="sup"] { --c: var(--sup); --cb: var(--sup-bg) }
+[data-cat="ops"] { --c: var(--ops); --cb: var(--ops-bg) }
+[data-cat="fnd"] { --c: var(--fnd); --cb: var(--fnd-bg) }
+.tag { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--c); background: var(--cb); padding: 2px 8px; border-radius: 4px; white-space: nowrap }
+.ph { font-family: var(--f-mono); font-size: 11px; font-weight: 500; border: 1px solid var(--line); color: var(--muted); padding: 1px 7px; border-radius: 4px; white-space: nowrap }
+.ph.p1 { color: var(--ink); border-color: var(--ink) }
+
+section { padding-top: 28px }
+h2 { font-family: var(--f-display); font-weight: 600; font-size: 24px; margin: 0 0 4px; text-wrap: balance }
+h3 { font-size: 13px; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); margin: 0; font-weight: 600 }
+.lede { color: var(--muted); margin: 0 0 16px; max-width: 72ch }
+
+/* ---------- dashboard shell ---------- */
+.bar0 { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; justify-content: space-between; margin-bottom: 12px }
+.ctrls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center }
+select, input[type="search"] { font: inherit; font-size: 14px; background: var(--panel); color: var(--ink); border: 1px solid var(--line); border-radius: 6px; padding: 6px 10px }
+input[type="search"] { width: min(280px, 100%) }
+select:focus-visible, input:focus-visible { outline: 2px solid var(--forest); outline-offset: 1px }
+.searchwrap { position: relative; flex: 1 1 220px; max-width: 320px }
+.searchwrap input { width: 100% }
+.results { position: absolute; z-index: 6; top: calc(100% + 4px); left: 0; right: 0; background: var(--panel); border: 1px solid var(--line); border-radius: 6px; box-shadow: 0 6px 20px rgb(0 0 0 / .12); max-height: 280px; overflow: auto }
+.results button { display: block; width: 100%; text-align: left; background: none; border: 0; padding: 8px 12px; cursor: pointer; border-bottom: 1px solid var(--line) }
+.results button:hover, .results button:focus-visible { background: var(--chip); outline: none }
+.results small { color: var(--muted); display: block }
+.crumbs { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; font-size: 14px; color: var(--muted); margin-bottom: 12px; min-height: 24px }
+.crumbs button { background: none; border: 0; padding: 0; color: var(--forest); cursor: pointer; font-weight: 500; text-decoration: underline; text-underline-offset: 3px }
+.crumbs span.sep { margin: 0 4px }
+.dash { min-height: 420px }
+
+.needs { width: 100%; display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; background: var(--panel); border: 1px solid var(--line); border-left: 5px solid var(--bad); border-radius: 8px; padding: 12px 16px; margin-bottom: 14px; cursor: pointer; text-align: left }
+.needs:hover, .needs:focus-visible { border-color: var(--ink); outline: none }
+.needs b { font-family: var(--f-display); font-size: 18px; font-weight: 600 }
+.needs .dots { display: flex; flex-wrap: wrap; gap: 6px; flex: 1 }
+.needs .go { color: var(--forest); font-weight: 600; white-space: nowrap }
+
+.tiles { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px }
+@media (max-width: 1000px) { .tiles { grid-template-columns: repeat(3, 1fr) } }
+@media (max-width: 640px) { .tiles { grid-template-columns: repeat(2, 1fr) } }
+@media (max-width: 420px) { .tiles { grid-template-columns: 1fr } }
+.tile { text-align: left; background: var(--panel); border: 1px solid var(--line); border-top: 5px solid var(--c); border-radius: 8px; padding: 14px 16px 16px; cursor: pointer; display: flex; flex-direction: column; gap: 4px; min-width: 0 }
+.tile:hover, .tile:focus-visible { box-shadow: 0 4px 16px rgb(0 0 0 / .10); outline: none; border-color: var(--c) }
+.tile .hd { display: flex; justify-content: space-between; align-items: center; gap: 6px }
+.tile .nm { font-weight: 600; font-size: 13px; text-transform: uppercase; letter-spacing: .07em; color: var(--c) }
+.dot { width: 11px; height: 11px; border-radius: 50%; flex: none; background: var(--muted) }
+.dot.good { background: var(--good) } .dot.warn { background: var(--warn) } .dot.bad { background: var(--bad) }
+.tile .big { font-family: var(--f-mono); font-size: 30px; font-weight: 500; font-variant-numeric: tabular-nums; line-height: 1.15 }
+.tile .lbl { font-size: 13px; color: var(--muted) }
+.tile .cmp { font-size: 13px }
+.tile .sec2 { font-size: 13px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 6px; margin-top: 4px }
+.tile svg { width: 100%; height: 34px; display: block; margin-top: 2px }
+.up { color: var(--good) } .down { color: var(--bad) } .wa { color: var(--warn) }
+.roleNote { margin-top: 14px; font-size: 13px; color: var(--muted) }
+
+/* area pages */
+.areaHead { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px; margin-bottom: 12px; border-bottom: 3px solid var(--c); padding-bottom: 8px }
+.areaHead h2 { margin: 0; color: var(--c) }
+.areaHead .sum { color: var(--muted); font-size: 14px }
+.grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 12px }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px 16px; min-width: 0 }
+.card > header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px; margin-bottom: 10px }
+.card > header .meta { display: flex; flex-wrap: wrap; gap: 6px; align-items: center }
+.c4 { grid-column: span 4 } .c5 { grid-column: span 5 } .c6 { grid-column: span 6 } .c7 { grid-column: span 7 } .c8 { grid-column: span 8 } .c12 { grid-column: span 12 }
+@media (max-width: 900px) { .c4, .c5, .c6, .c7, .c8 { grid-column: span 12 } }
+table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; font-size: 14px }
+th { text-align: left; font-weight: 600; color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .05em; padding: 6px 8px; border-bottom: 1px solid var(--line) }
+td { padding: 7px 8px; border-bottom: 1px solid var(--line) }
+td.n, th.n { text-align: right; font-family: var(--f-mono) }
+tr.go { cursor: pointer }
+tr.go:hover td, tr.go:focus-visible td { background: var(--chip) }
+tr.go:focus-visible { outline: 2px solid var(--forest) }
+.scroll { overflow-x: auto }
+.pill { display: inline-block; font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 99px; background: var(--chip); white-space: nowrap }
+.pill.bad { color: var(--bad) } .pill.warn { color: var(--warn) } .pill.good { color: var(--good) }
+.btn { font-size: 13px; font-weight: 600; border: 1px solid var(--forest); color: var(--forest); background: transparent; border-radius: 6px; padding: 4px 10px; cursor: pointer; white-space: nowrap }
+.btn:hover, .btn:focus-visible { background: var(--forest); color: var(--panel); outline: none }
+.btn.done { border-color: var(--good); color: var(--good); background: transparent; cursor: default }
+.btn.solid { background: var(--forest); color: var(--panel) }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 6px; overflow: hidden }
+.seg button { background: var(--panel); border: 0; padding: 3px 10px; font-size: 12px; font-weight: 600; cursor: pointer; color: var(--muted) }
+.seg button[aria-pressed="true"] { background: var(--chip); color: var(--ink) }
+.soon { opacity: .6 }
+.soonNote { font-size: 12px; color: var(--muted); margin: 8px 0 0 }
+.list { list-style: none; margin: 0; padding: 0 }
+.list li { display: flex; gap: 10px; align-items: flex-start; justify-content: space-between; padding: 9px 0 9px 10px; border-bottom: 1px solid var(--line); border-left: 3px solid var(--c, transparent) }
+.list li:last-child { border-bottom: 0 }
+.list li.go { cursor: pointer }
+.list li.go:hover { background: var(--chip) }
+.list .what { min-width: 0 }
+.list .who { font-size: 12px; color: var(--muted) }
+.mini { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 8px; margin-bottom: 12px }
+.mini div { background: var(--cb, var(--chip)); border-radius: 6px; padding: 8px 10px }
+.mini b { display: block; font-family: var(--f-mono); font-size: 20px; font-weight: 500 }
+.mini span { font-size: 12px; color: var(--muted) }
+svg.chart text { fill: var(--muted); font-family: var(--f-mono); font-size: 11px }
+.funnel { display: flex; flex-direction: column; gap: 6px }
+.frow { display: grid; grid-template-columns: 120px 1fr 64px; gap: 8px; align-items: center; font-size: 13px }
+.fbar { height: 16px; background: var(--chip); border-radius: 3px; overflow: hidden }
+.fbar > span { display: block; height: 100%; background: var(--c, var(--rev)) }
+.frow .n { font-family: var(--f-mono); text-align: right }
+.rec { border-left: 3px solid var(--rev); padding: 2px 0 2px 12px; margin: 0 0 12px }
+.rec b { display: block }
+.rec span { color: var(--muted); font-size: 14px }
+
+/* board */
+.board { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(150px, 1fr); gap: 8px; overflow-x: auto; padding-bottom: 4px }
+.col { background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 8px; display: flex; flex-direction: column; gap: 6px; min-width: 0 }
+.col h4 { margin: 0 0 2px; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); display: flex; justify-content: space-between }
+.kcard { text-align: left; background: var(--panel); border: 1px solid var(--line); border-left: 3px solid var(--c, var(--line)); border-radius: 5px; padding: 6px 8px; font-size: 13px; cursor: pointer; width: 100% }
+.kcard:hover, .kcard:focus-visible { border-color: var(--ink); outline: none }
+.kcard small { display: block; color: var(--muted) }
+.kcard.late { border-left-color: var(--bad) }
+
+/* detail */
+.detail { display: grid; grid-template-columns: 2fr 1fr; gap: 12px }
+@media (max-width: 860px) { .detail { grid-template-columns: 1fr } }
+.kv { display: grid; grid-template-columns: max-content 1fr; gap: 4px 14px; font-size: 14px; margin: 0 }
+.kv dt { color: var(--muted) }
+.kv dd { margin: 0 }
+.email { background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 12px 14px; font-size: 14px; white-space: pre-wrap }
+.draft { border-color: var(--sup); background: var(--sup-bg) }
+.actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px }
+.timeline { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 4px }
+.timeline li { font-size: 12px; padding: 4px 8px; border-radius: 4px; background: var(--chip); color: var(--muted) }
+.timeline li.done { background: var(--rev-bg); color: var(--rev) }
+.timeline li.now { background: var(--rev); color: var(--panel); font-weight: 600 }
+
+/* worker phone view */
+.phone { max-width: 360px; margin: 0 auto; background: var(--panel); border: 1px solid var(--line); border-radius: 22px; padding: 18px 16px; box-shadow: 0 8px 30px rgb(0 0 0 / .12) }
+.phone h3 { margin-bottom: 8px }
+.phone .clock { width: 100%; padding: 12px; font-size: 16px; margin: 6px 0 14px }
+.job { border: 1px solid var(--line); border-left: 4px solid var(--ops); border-radius: 8px; padding: 10px 12px; margin-bottom: 8px }
+.job b { display: block }
+.job small { color: var(--muted) }
+
+/* flow + plan */
+.flowbox { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 16px; overflow-x: auto }
+.legend { display: flex; flex-wrap: wrap; gap: 8px 18px; font-size: 13px; color: var(--muted); margin-top: 10px; align-items: center }
+.key { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 10px; margin: 0 0 14px }
+.key div { background: var(--panel); border: 1px solid var(--line); border-top: 4px solid var(--c, var(--ink)); border-radius: 6px; padding: 10px 12px; font-size: 14px }
+.key b { display: block; color: var(--c, var(--ink)) }
+.key span { color: var(--muted) }
+.tools { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; align-items: center }
+.hl { display: flex; flex-wrap: wrap; gap: 4px; align-items: center }
+.hl > span { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin-right: 4px }
+.hl button { font-size: 13px; font-weight: 600; border: 1px solid var(--line); background: var(--panel); border-radius: 99px; padding: 4px 11px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px }
+.hl button i { width: 9px; height: 9px; border-radius: 50%; background: var(--c, var(--muted)) }
+.hl button[aria-pressed="true"] { border-color: var(--c, var(--ink)); background: var(--cb, var(--chip)); color: var(--c, var(--ink)) }
+.dim-able { transition: opacity .15s }
+#plan[data-focus] .dim-able[data-cat] { opacity: .22 }
+#plan[data-focus="rev"] .dim-able[data-cat="rev"], #plan[data-focus="sup"] .dim-able[data-cat="sup"],
+#plan[data-focus="ops"] .dim-able[data-cat="ops"], #plan[data-focus="fnd"] .dim-able[data-cat="fnd"] { opacity: 1 }
+.acc { display: flex; flex-direction: column; gap: 10px }
+details.l1 { background: var(--panel); border: 1px solid var(--line); border-radius: 8px }
+details.l1 > summary { list-style: none; cursor: pointer; padding: 14px 16px; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px }
+details.l1 > summary::-webkit-details-marker, details.l2 > summary::-webkit-details-marker { display: none }
+details.l1 > summary .t { font-family: var(--f-display); font-size: 19px; font-weight: 600; flex: 1 1 220px; display: flex; align-items: center; gap: 10px }
+.chev { width: 18px; height: 18px; flex: none; transition: transform .15s; stroke: var(--muted); fill: none; stroke-width: 2 }
+details[open] > summary .chev { transform: rotate(90deg) }
+.counts { display: flex; flex-wrap: wrap; gap: 6px }
+details.l1 > .body { padding: 0 16px 14px; display: flex; flex-direction: column }
+details.l1 > summary:focus-visible, details.l2 > summary:focus-visible { outline: 2px solid var(--forest); outline-offset: -2px; border-radius: 6px }
+details.l2 { border-top: 1px solid var(--line); border-left: 4px solid var(--c, var(--line)) }
+details.l2 > summary { list-style: none; cursor: pointer; padding: 10px 12px; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px }
+details.l2 > summary .n { flex: 1 1 200px; font-weight: 600; display: flex; align-items: center; gap: 8px; min-width: 0 }
+details.l2 > summary .n .chev { width: 14px; height: 14px }
+details.l2 > ul { margin: 0; padding: 0 16px 12px 46px }
+details.l2 > ul li { margin-bottom: 4px; max-width: 80ch }
+details.l2 > ul li::marker { color: var(--c) }
+.plain { margin: 0; padding: 4px 4px 4px 22px }
+.plain li { margin-bottom: 6px; max-width: 80ch }
+.phase-mods { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 12px 12px 34px }
+.phase-mods .tag { text-transform: none; letter-spacing: 0; font-size: 12px }
+footer { color: var(--muted); font-size: 13px; margin-top: 32px }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important } }
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <div class="logo" role="img" aria-label="The Knotty Lumber Co">
+        <div class="l1">THE KN<svg viewBox="-2015 -2000 4030 4030" aria-hidden="true"><path d="m-90 2030 45-863a95 95 0 0 0-111-98l-859 151 116-320a65 65 0 0 0-20-73l-941-762 212-99a65 65 0 0 0 34-79l-186-572 542 115a65 65 0 0 0 73-38l105-247 423 454a65 65 0 0 0 111-57l-204-1052 327 189a65 65 0 0 0 91-27l332-652 332 652a65 65 0 0 0 91 27l327-189-204 1052a65 65 0 0 0 111 57l423-454 105 247a65 65 0 0 0 73 38l542-115-186 572a65 65 0 0 0 34 79l212 99-941 762a65 65 0 0 0-20 73l116 320-859-151a95 95 0 0 0-111 98l45 863z"/></svg>TTY</div>
+        <div class="l2">LUMBER Co</div>
+      </div>
+      <div class="hub">
+        <h1>Knotty Lumber Hub</h1>
+        <p>Custom ERP + marketing system · clickable mockup</p>
+      </div>
+    </div>
+    <span class="stamp">Sample numbers</span>
+  </header>
+
+  <nav class="sec" aria-label="Sections">
+    <a href="#dashboard">Dashboard</a>
+    <a href="#flow">How it connects</a>
+    <a href="#plan">The plan</a>
+  </nav>
+
+  <!-- ========== DASHBOARD ========== -->
+  <section id="dashboard">
+    <div class="bar0">
+      <div class="ctrls">
+        <label for="role" class="lbl" style="font-size:13px;color:var(--muted)">Viewing as</label>
+        <select id="role">
+          <option value="owner">Owner</option>
+          <option value="support">Customer support</option>
+          <option value="ops">Ops manager</option>
+          <option value="worker">Worker (phone)</option>
+        </select>
+        <select id="range" aria-label="Date range">
+          <option>Yesterday</option><option>Last 7 days</option><option>Month to date</option><option>Quarter to date</option>
+        </select>
+        <select id="cmp" aria-label="Compare to">
+          <option>vs same day last week</option><option>vs previous period</option><option>vs last year</option>
+        </select>
+      </div>
+      <div class="searchwrap">
+        <input type="search" id="q" placeholder="Search customers, quotes, projects, orders" autocomplete="off" aria-label="Search">
+        <div class="results" id="results" hidden></div>
+      </div>
+    </div>
+    <div class="crumbs" id="crumbs"></div>
+    <div class="dash" id="dash"></div>
+  </section>
+
+  <!-- ========== FLOW ========== -->
+  <section id="flow">
+    <h2>How it all connects</h2>
+    <p class="lede">Data comes in from the tools the business already uses, the hub does the work, and anything that touches money, customers or the public goes through an approval first. Boxes are coloured by area.</p>
+    <div class="flowbox">
+<pre class="mermaid">
+flowchart TB
+  subgraph IN["Tools already in use"]
+    SQ["Square<br/>store sales + custom projects"]
+    SH["Shopify<br/>online store"]
+    QB["QuickBooks Online"]
+    GM["Gmail + contact forms"]
+    GD["Google Drive<br/>photos"]
+    MK["Klaviyo · GA4 · Search Console · Semrush"]
+    SO["Instagram · Facebook · TikTok<br/>YouTube · Pinterest · ad accounts"]
+    GB["Google Business Profile"]
+    SU["Suppliers"]
+  end
+
+  subgraph ERP["Operations"]
+    Q["Quotes + estimating"] --> P["Custom projects"] --> CP["Customer project portal"]
+    SUP["Support inbox<br/>+ AI drafts"]
+    TK["Tariff answers"]
+    SHM["Shopify sales management"]
+    LC["Landed cost"] --> PRC["Pricing"]
+    TA["Trade accounts + receivables"]
+    DL["Delivery + shipping"]
+    RW["Returns + warranty"]
+    H["Hours"] --> HA["Ops manager approves"] --> PR["Payroll summary"]
+    EX["Expenses + receipts"]
+    INV["Inventory"] --> FC["Wood forecast"] --> PO["Purchase orders"]
+    CF["Cash flow, budget, sales tax"]
+    HR["HR + training"]
+    EQ["Equipment + safety"]
+    SCH["Scheduling"]
+  end
+
+  subgraph MMS["Marketing"]
+    CRM["CRM"]
+    REV["Reviews + Google profile"]
+    EM["Email marketing"]
+    AMB["Ambassadors"]
+    BLOG["Blog writer"]
+    SOC["Social post writer"]
+    IMG["Image library"]
+    MKT["Marketplaces"]
+  end
+
+  subgraph MI["Marketing intelligence"]
+    TS["Traffic sources"]
+    FUN["Funnel + conversion"]
+    AD["Ad spend + return"]
+    SEO["SEO + landing pages"]
+    SA["Social analytics"]
+    CO["Competitors"]
+    BR["Weekly briefing<br/>+ what to do"]
+  end
+
+  subgraph ALL["Foundation"]
+    BK["Backups + audit log"]
+    KB["Staff knowledge base"]
+    ASK["Ask the hub"]
+  end
+
+  APP{{"Owner / manager approval"}}
+
+  subgraph OUT["What goes out"]
+    O5["Customer replies + updates"]
+    O2["Shopify + Square updates"]
+    O3["Posts, blogs, emails"]
+    O1["QuickBooks entries"]
+    O4["Payroll email"]
+    O6["Supplier POs"]
+  end
+
+  REP["Dashboard + reports: morning · weekly · monthly · quarterly"]
+
+  SQ --> P
+  SQ --> INV
+  SH --> SHM
+  SH --> TS
+  GM --> SUP
+  QB --> CF
+  QB --> TA
+  GD --> IMG
+  MK --> SEO
+  MK --> EM
+  SO --> SA
+  SO --> AD
+  GB --> REV
+  SU --> LC
+
+  TK --> SUP
+  KB --> SUP
+  P --> FC
+  P --> DL
+  Q --> APP
+  SUP --> APP
+  PRC --> APP
+  REV --> APP
+  IMG --> BLOG
+  IMG --> SOC
+  BLOG --> APP
+  SOC --> APP
+  EX --> APP
+  PR --> APP
+  PO --> APP
+  TS --> BR
+  FUN --> BR
+  AD --> BR
+  SEO --> BR
+  SA --> BR
+  CO --> BR
+  BR --> APP
+
+  APP --> O5
+  APP --> O2
+  APP --> O3
+  APP --> O1
+  APP --> O4
+  APP --> O6
+
+  ERP --> REP
+  MMS --> REP
+  MI --> REP
+
+  classDef rev fill:#1E7A46,stroke:#14532F,color:#FFFFFF
+  classDef sup fill:#2563B0,stroke:#1A4680,color:#FFFFFF
+  classDef ops fill:#A35F00,stroke:#6E4000,color:#FFFFFF
+  classDef fnd fill:#5E6873,stroke:#3E454D,color:#FFFFFF
+  classDef gate fill:#17251F,stroke:#17251F,color:#FFFFFF
+  class Q,P,SHM,LC,PRC,TA,CRM,REV,EM,AMB,BLOG,SOC,IMG,MKT,TS,FUN,AD,SEO,SA,CO,BR rev
+  class CP,SUP,TK,DL,RW,KB,O5 sup
+  class H,HA,PR,EX,INV,FC,PO,CF,HR,EQ,SCH ops
+  class BK,ASK fnd
+  class APP gate
+</pre>
+      <div class="legend">
+        <span class="tag" data-cat="rev">Revenue</span><span class="tag" data-cat="sup">Customer support</span><span class="tag" data-cat="ops">Operations</span><span class="tag" data-cat="fnd">Foundation</span>
+        <span>The dark six-sided box is the approval step. Nothing reaches QuickBooks, Shopify, customers or social media without it.</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== PLAN ========== -->
+  <section id="plan">
+    <h2>The plan</h2>
+    <p class="lede">Everything is in scope; it arrives in three phases. Revenue and customer support come first. Open a main point to see its parts, then open a part to see exactly what it includes.</p>
+    <div class="key">
+      <div data-cat="rev"><b>Revenue</b><span>Brings in or protects sales and margin. Top priority.</span></div>
+      <div data-cat="sup"><b>Customer support</b><span>Answers customers faster and keeps them coming back. Top priority.</span></div>
+      <div data-cat="ops"><b>Operations</b><span>Runs the shop, people and money behind the scenes.</span></div>
+      <div data-cat="fnd"><b>Foundation</b><span>Logins, data, backups and safety nets everything else needs.</span></div>
+    </div>
+    <div class="tools">
+      <button class="btn" type="button" id="openAll">Open everything</button>
+      <button class="btn" type="button" id="closeAll">Close everything</button>
+      <div class="hl" role="group" aria-label="Highlight by area">
+        <span>Highlight</span>
+        <button type="button" data-f="" aria-pressed="true">All</button>
+        <button type="button" data-f="rev" data-cat="rev" aria-pressed="false"><i></i>Revenue</button>
+        <button type="button" data-f="sup" data-cat="sup" aria-pressed="false"><i></i>Support</button>
+        <button type="button" data-f="ops" data-cat="ops" aria-pressed="false"><i></i>Operations</button>
+        <button type="button" data-f="fnd" data-cat="fnd" aria-pressed="false"><i></i>Foundation</button>
+      </div>
+    </div>
+    <div class="acc" id="acc"></div>
+    <footer>Mockup only. Nothing is connected, and all names and numbers on the dashboard are samples.</footer>
+  </section>
+</div>
+
+<script>
+(function () {
+  var MODULES = [{"title": "Operations (ERP)", "modules": [{"name": "Quoting and estimating", "cat": "rev", "pri": 1, "items": ["Board-foot and cut-list calculator: species, grade, thickness, dimensions, finish and labour give a price in minutes.", "Uses current landed cost and the job history (actual hours and waste on similar jobs), so quotes keep getting more accurate.", "Branded quote PDF emailed to the customer, accepted with an online signature, deposit paid by Square link.", "Accepted quote becomes the project automatically; unanswered quotes go to follow-ups."]}, {"name": "Custom projects (they start in Square)", "cat": "rev", "pri": 1, "items": ["A Square order or invoice tagged \"custom\" automatically becomes a project.", "Stages: Quote → Deposit → Approved → Milling → Finishing → Ready → Delivered → Paid.", "Each project holds materials, assigned workers, hours logged, photos (from Drive) and customer updates.", "Margin per job: quoted vs actual materials and labour.", "Late or stalled jobs flagged in the morning email."]}, {"name": "Customer project portal", "cat": "sup", "pri": 1, "items": ["Each custom customer gets a private link: project stage, expected date, progress photos, and their quote and invoices.", "Design approvals and change requests done in the portal, with a record of what was approved.", "Deposits and balances paid online through Square.", "Stage changes send an automatic update, which cuts down on \"where's my table?\" emails."]}, {"name": "Landed cost and pricing", "cat": "rev", "pri": 1, "items": ["True cost per board foot: supplier price plus freight, duty, tariff, exchange rate and drying/milling waste.", "Recalculated whenever a supplier price, tariff or exchange rate changes.", "Margin per product shown against the current price; suggested price updates when margin drops below target.", "Price changes pushed to Shopify and Square in bulk after approval."]}, {"name": "Customer support and email", "cat": "sup", "pri": 1, "items": ["Every customer email lands in one queue: Gmail, the Shopify contact form, Square messages.", "AI sorts each one: order status, quote request, project update, complaint, tariff/shipping question, supplier, spam.", "AI drafts the reply using real data: order status, project stage, tracking number.", "The support person reviews, edits and sends. Nothing goes out unapproved at first; routine replies (\"where's my order\") can be switched to auto-send later.", "Response times tracked; tickets waiting too long flagged; customer history shown beside each email.", "Supplier emails routed to the ops manager; invoices routed to expenses."]}, {"name": "Tariff questions", "cat": "sup", "pri": 1, "items": ["A maintained knowledge base: current US/Canada lumber duties and tariffs, cross-border shipping rules, which products are affected, what's included in the price.", "Every entry has a source and a \"last checked\" date. A weekly job watches for changes and flags anything new for the owner.", "Support gets a tariff answer draft with the source attached.", "A self-serve FAQ page on the website for customers, which also brings search traffic.", "Never guesses: anything not in the knowledge base goes to the owner."]}, {"name": "Shopify sales management", "cat": "rev", "pri": 1, "items": ["Products, pricing, inventory, collections and discount codes managed from the hub.", "Bulk price updates (e.g. when a supplier's costs rise or a tariff changes).", "Slab and one-of-a-kind listings created from a photo plus dimensions: AI writes the listing, live after approval.", "Sales dashboard by product, collection and channel; abandoned carts; slow sellers flagged for promotion.", "Inventory kept in sync with Square so the shop and online never oversell."]}, {"name": "Hours → approval → payroll", "cat": "ops", "pri": 2, "items": ["Workers enter hours on their phone, against a project or general shop work.", "The ops manager approves or rejects weekly; the owner sees exceptions (overtime, missing days).", "On approval, the payroll summary (hours, rates, overtime, totals) is built automatically and emailed through Gmail to whoever runs payroll, after the owner clicks Send.", "Hours also feed labour cost on each project."]}, {"name": "Expenses + QuickBooks Online", "cat": "ops", "pri": 2, "items": ["Receipts come in by phone photo or forwarded email. AI reads vendor, amount, tax and category.", "Approve → posted to QBO, attached to a project if it belongs to one.", "Square and Shopify payouts matched against QBO deposits.", "Reports use QBO data plus the hub, so the numbers match the books."]}, {"name": "Trade and contractor accounts", "cat": "rev", "pri": 2, "items": ["Contractor and trade pricing tiers, applied automatically in Square, Shopify and quotes.", "Credit applications, net-30 terms and credit limits; orders held when an account is over its limit or overdue.", "Receivables: who owes what and for how long (from QBO), with polite reminder emails drafted for approval.", "Statements emailed monthly."]}, {"name": "Cash flow, budgets and sales tax", "cat": "ops", "pri": 2, "items": ["13-week cash flow forecast: expected sales, deposits, receivables, payroll, supplier bills and tax payments.", "Budget by category for the year, with budget vs actual each month.", "Sales tax: HST/GST collected and paid, set aside each month and ready for filing; US sales tracked by state if shipping south.", "Alerts when cash is forecast to run low, early enough to act."]}, {"name": "Inventory and wood requirements forecasting", "cat": "ops", "pri": 2, "items": ["Stock, slabs and offcuts tracked and synced to Square and Shopify.", "Reads every open Square project, Shopify order and quote (weighted by likelihood to close) and converts them to board feet by species, thickness and grade.", "Compares against stock on hand plus purchase orders already on the way.", "Output: what to order now, what will run short and when, supplier lead-time warnings, and waste/offcut allowance based on actual job history.", "Gets smarter over time with seasonal patterns and sales trends.", "Feeds a suggested purchase order the ops manager approves."]}, {"name": "Delivery and shipping", "cat": "sup", "pri": 2, "items": ["Local delivery: truck and driver schedule, stops grouped into routes, delivery window texted or emailed to the customer.", "Proof of delivery: photo and signature on the driver's phone.", "Online orders: shipping labels for parcels, freight quotes for long or heavy pieces, tracking sent automatically.", "US orders: customs paperwork and duties shown up front, linked to the tariff knowledge base."]}, {"name": "Returns, warranty and quality", "cat": "sup", "pri": 2, "items": ["Returns and warranty claims logged with photos, reason and outcome (refund, replace, repair).", "Defects tracked by supplier, species and product, so repeat problems show up quickly.", "Feeds the supplier scorecard and the support queue."]}, {"name": "HR and staff", "cat": "ops", "pri": 3, "items": ["Onboarding checklist for each new hire: forms, banking and tax details, signed policies, safety orientation, equipment training.", "Staff file: contact details, emergency contact, role, pay rate, documents, signed policies.", "Time off requests and approval, shown on the schedule and in the payroll summary.", "Training and certifications (forklift, saw and machine safety, first aid) with expiry alerts 30 days ahead.", "Performance notes and reviews, visible only to the owner and ops manager."]}, {"name": "Purchasing and suppliers", "cat": "ops", "pri": 3, "items": ["Purchase orders created from the forecast or by hand, approved, then emailed to the supplier.", "Receiving: what arrived vs what was ordered, by species and grade; shortfalls and damage logged.", "Supplier invoices matched to the purchase order and receipt before they go to QBO.", "Supplier scorecard: on-time delivery, quality problems, price changes over time."]}, {"name": "Scheduling", "cat": "ops", "pri": 3, "items": ["Staff shifts, project schedule, deliveries, pickups and customer appointments in one calendar.", "Coverage gaps flagged; synced to Google Calendar."]}, {"name": "Equipment and safety", "cat": "ops", "pri": 3, "items": ["Equipment list (saws, planers, kiln, forklift, trucks) with maintenance schedules and service history.", "Breakdowns logged, with downtime and repair cost; blade and part reorder reminders.", "Safety: incident and near-miss reports from a phone, inspections and checklists, WSIB records."]}, {"name": "Classes and workshops (optional)", "cat": "rev", "pri": 3, "items": ["Woodworking classes or demo days: dates, seats, online booking and payment.", "Waivers signed online; attendees added to the CRM and email list."]}]}, {"title": "Marketing", "modules": [{"name": "CRM", "cat": "rev", "pri": 1, "items": ["One record per customer, combining Square, Shopify, Klaviyo and Gmail.", "History: orders, projects, emails, support tickets, total spend.", "Segments: contractors, repeat buyers, big spenders, lapsed customers.", "Follow-ups due: quotes not answered, finished projects ready for a review request."]}, {"name": "Google Business Profile and reviews", "cat": "rev", "pri": 1, "items": ["New reviews from Google (and Facebook) in one place, with AI-drafted replies for approval.", "Review requests sent automatically after each sale or finished project, with a direct review link.", "Profile posts, photos and Q&A kept current; profile views, calls and direction requests tracked."]}, {"name": "Email marketing", "cat": "rev", "pri": 1, "items": ["Klaviyo: list growth, campaign and flow results, revenue per email, unsubscribes.", "Which emails drive Shopify sales, and which segments respond best."]}, {"name": "Ambassador program", "cat": "rev", "pri": 2, "items": ["Personal codes and links; sales tracked automatically through Square and Shopify.", "Commission or reward owed, approve-and-pay step, leaderboard.", "Ambassador content tracked (posts made, reach).", "Separate ambassador portal: their link, sales and earnings."]}, {"name": "Blog generator", "cat": "rev", "pri": 2, "items": ["Keyword research (Semrush) → topic list → AI draft in the owner's voice → owner review → publish to the Shopify blog.", "Facts come from the business's own data: species, projects, real prices."]}, {"name": "Social post generator", "cat": "rev", "pri": 2, "items": ["Picks photos from Google Drive (finished projects, slabs, the shop).", "AI writes captions and hashtags in the owner's voice.", "A weekly calendar the owner approves; posts go out automatically once approved.", "Built-in rules, e.g. no repeat subject within 7 days."]}, {"name": "Image library", "cat": "rev", "pri": 2, "items": ["Google Drive folders indexed; AI tags each image (species, product, project, people or not).", "Blog and social generators find \"walnut slab, finished, no people\" instantly. Files stay in Drive."]}, {"name": "Marketplace selling", "cat": "rev", "pri": 3, "items": ["Optional extra channels: Etsy, Amazon Handmade, Facebook Marketplace and Instagram Shop.", "Listings created from Shopify products; stock kept in sync so one-of-a-kind pieces never sell twice.", "Sales and fees per channel, so it's clear which marketplaces are worth it."]}]}, {"title": "Marketing intelligence", "modules": [{"name": "Traffic sources (where Shopify traffic comes from)", "cat": "rev", "pri": 1, "items": ["Every visit and sale attributed to its source: Google organic, Google Ads, Instagram, Facebook, TikTok, Pinterest, YouTube, email, ambassadors, direct, referrals.", "Combines Shopify's own analytics with GA4 and UTM-tagged links (every social post, email and ambassador link is tagged automatically).", "Revenue, orders and conversion rate per source, so effort goes where sales come from, not just clicks."]}, {"name": "Conversion rate and funnel analysis", "cat": "rev", "pri": 1, "items": ["Funnel: sessions → product view → add to cart → checkout started → purchase, from Shopify and GA4.", "Shown overall and split by source, device (phone vs desktop), new vs returning, and product category.", "Where people drop off and how that changes week to week; abandoned checkouts with value.", "Custom-project funnel too: enquiry → quote sent → deposit paid → completed (from Square and the CRM)."]}, {"name": "Ad spend tracking", "cat": "rev", "pri": 1, "items": ["Spend, clicks, conversions and revenue from every paid channel in one view: Google Ads, Meta (Instagram and Facebook), TikTok Ads, Pinterest Ads, YouTube (through Google Ads).", "True return per channel: ad spend matched to actual Shopify and Square sales, not just each platform's own claimed conversions.", "Cost per sale, cost per new customer, and return on ad spend by channel, campaign and product.", "Budget pacing: spend to date vs monthly budget, with alerts when a channel overspends or stops converting.", "Ad costs posted to QuickBooks as expenses automatically (after approval), so profit reports include marketing cost.", "Same CSV upload fallback as social analytics where a direct connection isn't approved yet.", "Recommendations: where to move budget, which campaigns to pause or scale. Advice only: no ad, budget or bid changes without the owner's approval."]}, {"name": "Market changes and recommendations", "cat": "rev", "pri": 1, "items": ["A weekly AI briefing that reads everything above (traffic, funnels, SEO, social, competitors, ad spend) plus sales, stock, tariffs and Semrush market data.", "Spots changes: a source dropping, a product trending, a competitor cutting prices or launching ads, a channel's cost per sale rising, a season starting, a tariff or price shift, a funnel step getting worse.", "Each finding comes with what to do: e.g. \"Pinterest clicks up 40% on live-edge tables: post 3 more this week and add a collection page\", \"Checkout drop-off up on phones: test shipping cost display earlier\".", "Recommendations go on the to-do list for the owner to accept or dismiss; results tracked so the system learns which advice pays off."]}, {"name": "SEO", "cat": "rev", "pri": 2, "items": ["Google Search Console: clicks, impressions, average position and click-through rate by page and by search term.", "Semrush: keyword rankings, competitor rankings, new keyword opportunities, backlinks, site audit errors.", "Flags: pages losing rank, search terms with high impressions but few clicks (title/description fixes), indexing errors.", "Feeds the blog generator with the topics most likely to bring buyers."]}, {"name": "Landing page analysis", "cat": "rev", "pri": 2, "items": ["For every page people land on: visits, source, bounce/engagement, time on page, add-to-cart rate, conversion rate, revenue.", "Best and worst landing pages ranked, with likely reasons (slow load, weak headline, no clear product, missing price or shipping info).", "Product pages: views vs add-to-cart vs purchase, to spot pages that attract but don't sell."]}, {"name": "Social media analytics: Instagram, Facebook, TikTok, YouTube, Pinterest", "cat": "rev", "pri": 2, "items": ["Per platform: followers and growth, reach, views, engagement rate, saves/shares, profile visits, link clicks.", "Per post: which subjects, formats (reel, photo, short, pin) and posting times perform best.", "Clicks and sales back to Shopify per platform, through tagged links.", "Direct connections where the platform allows: Meta Graph API (Instagram, Facebook), TikTok Business API, YouTube Analytics API, Pinterest API.", "Fallback when a direct connection isn't available or approved yet: a regular upload of the platform's export (CSV) into a Google Drive folder. The hub picks it up automatically, so it's drag-and-drop, no data entry.", "Feeds the social post generator: more of what works, less of what doesn't."]}, {"name": "Competitor analysis", "cat": "rev", "pri": 2, "items": ["A tracked list of competitors: local lumber yards, slab and live-edge sellers, online lumber shops, big-box stores for comparable products.", "Search: their keyword rankings, traffic estimates, top pages and new pages (Semrush), compared with ours; keywords they win that we don't.", "Products and prices: their public product pages checked weekly for price changes, new products, stock-outs and promotions.", "Ads: what they're running, from the public Meta Ad Library, Google Ads Transparency Center and Semrush ad data: new campaigns, offers, messaging.", "Social: their follower growth, posting frequency and best-performing posts on Instagram, Facebook, TikTok, YouTube and Pinterest.", "Reviews: new Google reviews and rating changes, and what customers praise or complain about.", "Weekly summary of what changed, with what it means for us. Public information only."]}]}, {"title": "Across the whole system", "modules": [{"name": "Backups and audit log", "cat": "fnd", "pri": 1, "items": ["Daily database backups, plus a weekly copy to the business's own Google Drive.", "Audit log: who changed what and when, for prices, hours, approvals, QBO writes and customer records.", "A written recovery plan, tested once before go-live."]}, {"name": "Staff knowledge base", "cat": "sup", "pri": 2, "items": ["SOPs and how-tos: opening and closing, milling, finishing, packing, safety procedures.", "Product specs and care guides per species and finish.", "Support and new staff search it instead of asking; Ask the hub uses it too."]}, {"name": "Compliance", "cat": "fnd", "pri": 2, "items": ["Email consent recorded per contact to meet Canada's anti-spam law (CASL); unsubscribes synced across Klaviyo and the CRM.", "Privacy (PIPEDA): customer data kept only as long as needed, with a privacy policy and a way to answer data requests.", "FSC chain-of-custody records if certified wood is sold."]}, {"name": "Ask the hub", "cat": "fnd", "pri": 3, "items": ["A chat box for the owner (and staff, within their permissions) that answers questions from the hub's data.", "Examples: \"What did walnut make us last quarter?\", \"Which projects are late?\", \"Who are our top 10 contractors this year?\"", "Answers show the numbers they're based on, with a link to the full report."]}]}];
+
+  /* =====================================================================
+     DASHBOARD: three levels. Home (5 tiles + Needs you) → area page → detail.
+     All data below is sample data for the mockup.
+     ===================================================================== */
+  var AREAS = {
+    sales:     { name: 'Sales',            cat: 'rev', summary: 'In store, online and custom work: what sold, what’s quoted, what’s in the pipeline.' },
+    marketing: { name: 'Marketing',        cat: 'rev', summary: 'Where customers come from, what they do on the site, and what’s worth the money.' },
+    support:   { name: 'Customer support', cat: 'sup', summary: 'Every customer question in one place, oldest first, with replies drafted.' },
+    ops:       { name: 'Operations',       cat: 'ops', summary: 'Jobs in the shop, wood, deliveries and people.' },
+    money:     { name: 'Money',            cat: 'fnd', summary: 'Cash, profit, who owes us, what we owe, and tax.' }
+  };
+  var CHEV = '<svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>';
+  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+  function phase(p) { return '<span class="ph' + (p === 1 ? ' p1' : '') + '">Phase ' + p + '</span>'; }
+  function card(span, title, p, body, extra) {
+    return '<div class="card ' + span + (p > 1 ? '' : '') + '"><header><h3>' + title + '</h3><div class="meta">' + (extra || '') + phase(p) + '</div></header>' + body + (p > 1 ? '<p class="soonNote">Arrives in Phase ' + p + '. Shown here with sample numbers.</p>' : '') + '</div>';
+  }
+  function spark(vals, color) {
+    var w = 200, h = 34, mx = Math.max.apply(null, vals), mn = Math.min.apply(null, vals), r = (mx - mn) || 1;
+    var pts = vals.map(function (v, i) { return (i * w / (vals.length - 1)).toFixed(1) + ',' + (h - 3 - (v - mn) / r * (h - 8)).toFixed(1); });
+    var last = pts[pts.length - 1].split(',');
+    return '<svg viewBox="0 0 ' + w + ' ' + h + '" preserveAspectRatio="none" aria-hidden="true"><polyline points="' + pts.join(' ') + '" fill="none" stroke="' + color + '" stroke-width="2" vector-effect="non-scaling-stroke"/><circle cx="' + last[0] + '" cy="' + last[1] + '" r="3" fill="' + color + '"/></svg>';
+  }
+  function go(view, id) { return ' data-go="' + view + (id ? ':' + id : '') + '" tabindex="0"'; }
+  function seg(name, opts, cur) {
+    return '<span class="seg" role="group">' + opts.map(function (o) { return '<button type="button" data-seg="' + name + '" data-val="' + o + '" aria-pressed="' + (o === cur) + '">' + o + '</button>'; }).join('') + '</span>';
+  }
+  var VIEWMODE = { quotes: 'Board', inbox: 'Table', jobs: 'Board' };
+
+  /* ---------- sample records ---------- */
+  var QUOTES = [
+    { id: 'Q-1182', who: 'M. Laurent', what: 'Walnut live-edge dining table', amt: 4250, stage: 'Quote', age: '2 days' },
+    { id: 'Q-1179', who: 'Ridgeway Renovations', what: 'White oak stair treads ×14', amt: 3180, stage: 'Quote', age: '9 days', late: true },
+    { id: 'Q-1176', who: 'S. Patel', what: 'Maple butcher-block island top', amt: 1640, stage: 'Quote', age: '8 days', late: true },
+    { id: 'P-221', who: 'D. Chen', what: 'Cherry floating shelves ×6', amt: 980, stage: 'Deposit', age: '1 day' },
+    { id: 'P-219', who: 'Harbour Café', what: 'Walnut bar top 14 ft', amt: 6400, stage: 'Milling', age: '6 days' },
+    { id: 'P-214', who: 'J. Morrison', what: 'Live-edge bar top', amt: 3800, stage: 'Finishing', age: '4 days late', late: true },
+    { id: 'P-212', who: 'K. Novak', what: 'Oak mantel', amt: 720, stage: 'Ready', age: 'pickup Thu' }
+  ];
+  var STAGES = ['Quote', 'Deposit', 'Milling', 'Finishing', 'Ready'];
+  var TICKETS = [
+    { id: 'T-5541', who: 'J. Morrison', type: 'Project update', subj: 'When will the bar top be ready?', wait: '26 h', st: 'New', val: '$3,800 project', bad: true },
+    { id: 'T-5544', who: 'A. Fournier', type: 'Tariff / shipping', subj: 'Duty on a slab shipped to Buffalo?', wait: '25 h', st: 'New', bad: true },
+    { id: 'T-5550', who: 'R. Singh', type: 'Order status', subj: 'Order #4471 tracking?', wait: '5 h', st: 'Draft ready' },
+    { id: 'T-5552', who: 'Ridgeway Renovations', type: 'Quote', subj: 'Can you match 5/4 pricing on treads?', wait: '3 h', st: 'Draft ready' },
+    { id: 'T-5553', who: 'L. Okafor', type: 'Returns', subj: 'Board arrived cracked', wait: '2 h', st: 'New' },
+    { id: 'T-5555', who: 'B. Tremblay', type: 'Order status', subj: 'Pickup hours Saturday?', wait: '1 h', st: 'Draft ready' }
+  ];
+  var JOBS = [
+    { id: 'P-219', what: 'Walnut bar top 14 ft', who: 'Crew A', stage: 'Milling', due: 'Oct 18' },
+    { id: 'P-214', what: 'Live-edge bar top', who: 'Crew B', stage: 'Finishing', due: 'Oct 8', late: true },
+    { id: 'P-216', what: 'Oak dining table', who: 'Crew B', stage: 'Finishing', due: 'Oct 15' },
+    { id: 'P-218', what: 'Maple countertop', who: 'Crew A', stage: 'Milling', due: 'Oct 16' },
+    { id: 'P-220', what: 'Cherry bench', who: 'Crew C', stage: 'Cut list', due: 'Oct 22' },
+    { id: 'P-212', what: 'Oak mantel', who: 'Crew C', stage: 'Ready', due: 'Oct 14' }
+  ];
+  var SEARCH = [
+    { t: 'Quote Q-1182 · M. Laurent', s: 'Walnut live-edge dining table · $4,250', v: 'quote:Q-1182' },
+    { t: 'Project P-214 · J. Morrison', s: 'Live-edge bar top · Finishing · 4 days late', v: 'project:P-214' },
+    { t: 'Ticket T-5541 · J. Morrison', s: 'When will the bar top be ready?', v: 'ticket:T-5541' },
+    { t: 'Ridgeway Renovations', s: 'Contractor · 3 job sites · $4,120 over 45 days', v: 'account:ridgeway' },
+    { t: 'Walnut 8/4', s: '940 bf needed · 520 on hand', v: 'wood:walnut' },
+    { t: 'TikTok Ads', s: 'Return 0.9× this month', v: 'channel:tiktok' }
+  ];
+
+  /* ---------- home ---------- */
+  function home() {
+    var t = [
+      { a: 'sales', st: 'good', big: '$4,860', lbl: 'sales yesterday', cmp: '<span class="up">▲ 12%</span> vs same day last week', sec: 'Quote-to-order rate 38% · month 64% of target', sp: [3.5, 4.4, 3.7, 5.2, 5.6, 7.3, 3.7, 3.8, 4.5, 3.7, 5.6, 6.5, 7.8, 4.9] },
+      { a: 'marketing', st: 'warn', big: '1.9%', lbl: 'online conversion', cmp: '<span class="down">▼ 0.3 pts</span> vs last week', sec: 'Ad return 4.1× · 412 visits', sp: [2.3, 2.2, 2.4, 2.1, 2.2, 2.0, 2.2, 2.1, 1.9, 2.0, 2.1, 1.8, 2.2, 1.9] },
+      { a: 'support', st: 'bad', big: '9', lbl: 'open questions', cmp: '<span class="down">Oldest waiting 26 h</span>', sec: 'First reply 3.2 h (target 4 h)', sp: [6, 7, 5, 8, 6, 9, 7, 6, 8, 7, 10, 8, 7, 9] },
+      { a: 'ops', st: 'warn', big: '11 / 14', lbl: 'jobs on time', cmp: '<span class="wa">1 wood shortfall</span> in 11 days', sec: '6 staff · 214.5 h awaiting approval', sp: [13, 13, 12, 14, 13, 12, 12, 13, 12, 11, 12, 11, 11, 11] },
+      { a: 'money', st: 'good', big: '$38.2k', lbl: 'cash today', cmp: '13-week low <b>$21.4k</b> (above floor)', sec: '$6,380 overdue from customers', sp: [31, 33, 35, 32, 36, 34, 37, 35, 39, 36, 38, 37, 40, 38] }
+    ];
+    var role = document.getElementById('role').value;
+    return '<button type="button" class="needs"' + go('needs') + '><b>Needs you: 7 approvals · 3 alerts</b><span class="dots">' +
+      '<span class="tag" data-cat="rev">4 Sales &amp; marketing</span><span class="tag" data-cat="sup">2 Support</span><span class="tag" data-cat="ops">3 Operations</span><span class="tag" data-cat="fnd">1 Money</span></span><span class="go">Open →</span></button>' +
+      '<div class="tiles">' + t.map(function (x) {
+        var A = AREAS[x.a];
+        return '<button type="button" class="tile" data-cat="' + A.cat + '"' + go('area', x.a) + '><span class="hd"><span class="nm">' + A.name + '</span><span class="dot ' + x.st + '" title="' + x.st + '"></span></span>' +
+          '<span class="big">' + x.big + '</span><span class="lbl">' + x.lbl + '</span><span class="cmp">' + x.cmp + '</span>' + spark(x.sp, 'var(--c)') + '<span class="sec2">' + x.sec + '</span></button>';
+      }).join('') + '</div>' +
+      '<p class="roleNote">' + (role === 'owner' ? 'Owner home. Customer support and the ops manager land on their own area instead; workers get the phone view. Click any tile to go one level down.' : '') + '</p>';
+  }
+
+  /* ---------- needs you ---------- */
+  function needs() {
+    var items = [
+      ['rev', 'Quote Q-1182: walnut dining table, $4,250 (41% margin)', 'Sales', 'quote:Q-1182'],
+      ['rev', 'Price update: white oak 4/4 FAS $9.80 → $10.45 per bf (landed cost up 6%)', 'Sales', ''],
+      ['rev', 'Reply to new 2-star Google review', 'Marketing', ''],
+      ['rev', 'This week’s 5 social posts', 'Marketing', ''],
+      ['sup', '2 customers waiting over 24 hours (one is a $3,800 project)', 'Support · alert', 'ticket:T-5541'],
+      ['sup', '3 drafted replies ready to send', 'Support', 'area:support'],
+      ['ops', 'Payroll: 6 staff, 214.5 h, 9 h overtime (ops manager approved)', 'Operations', ''],
+      ['ops', 'Walnut 8/4 runs short in 11 days: purchase order drafted', 'Operations · alert', 'wood:walnut'],
+      ['ops', 'Project P-214 is 4 days late', 'Operations · alert', 'project:P-214'],
+      ['fnd', '3 receipts to QuickBooks ($486.20)', 'Money', '']
+    ];
+    return '<div class="areaHead" data-cat="fnd" style="--c:var(--bad)"><h2>Needs you</h2><span class="sum">Approvals and red alerts from every area, in one list. Each one opens where you can act on it.</span></div>' +
+      '<div class="card"><ul class="list">' + items.map(function (i) {
+        var p = i[3] ? i[3].split(':') : null;
+        return '<li data-cat="' + i[0] + '"' + (p ? ' class="go"' + go(p[0], p[1]) : '') + '><div class="what">' + i[1] + '<div class="who">' + i[2] + '</div></div>' +
+          (p ? '<span class="btn">Open</span>' : '<button type="button" class="btn act">Approve</button>') + '</li>';
+      }).join('') + '</ul></div>';
+  }
+
+  /* ---------- area pages ---------- */
+  function areaHead(a) { var A = AREAS[a]; return '<div class="areaHead" data-cat="' + A.cat + '"><h2>' + A.name + '</h2><span class="sum">' + A.summary + '</span></div>'; }
+
+  function quotesBoard() {
+    if (VIEWMODE.quotes === 'Table') {
+      return '<div class="scroll"><table><thead><tr><th>#</th><th>Customer</th><th>What</th><th>Stage</th><th class="n">Value</th></tr></thead><tbody>' +
+        QUOTES.map(function (q) { var v = q.id[0] === 'Q' ? 'quote' : 'project'; return '<tr class="go"' + go(v, q.id) + '><td>' + q.id + '</td><td>' + esc(q.who) + '</td><td>' + esc(q.what) + '</td><td>' + q.stage + (q.late ? ' <span class="pill bad">late</span>' : '') + '</td><td class="n">$' + q.amt.toLocaleString() + '</td></tr>'; }).join('') + '</tbody></table></div>';
+    }
+    return '<div class="board">' + STAGES.map(function (s) {
+      var qs = QUOTES.filter(function (q) { return q.stage === s; });
+      var sum = qs.reduce(function (a, q) { return a + q.amt; }, 0);
+      return '<div class="col"><h4><span>' + s + '</span><span>$' + (sum / 1000).toFixed(1) + 'k</span></h4>' + qs.map(function (q) {
+        var v = q.id[0] === 'Q' ? 'quote' : 'project';
+        return '<button type="button" class="kcard' + (q.late ? ' late' : '') + '" data-cat="rev"' + go(v, q.id) + '><b>' + q.id + '</b> ' + esc(q.what) + '<small>' + esc(q.who) + ' · $' + q.amt.toLocaleString() + ' · ' + q.age + '</small></button>';
+      }).join('') + '</div>';
+    }).join('') + '</div>';
+  }
+
+  function salesPage() {
+    return areaHead('sales') + '<div class="grid">' +
+      card('c8', 'Sales by channel', 1, '<div class="scroll"><svg class="chart" id="salesChart" viewBox="0 0 640 200" width="100%" role="img" aria-label="Daily sales, last 14 days"></svg></div>' +
+        '<div class="scroll"><table><thead><tr><th>Channel</th><th class="n">Yesterday</th><th class="n">Month to date</th><th class="n">Target</th><th class="n">vs last year</th></tr></thead><tbody>' +
+        '<tr><td>In store (Square)</td><td class="n">$3,120</td><td class="n">$31,400</td><td class="n">$48,000</td><td class="n up">+9%</td></tr>' +
+        '<tr><td>Online (Shopify)</td><td class="n">$1,740</td><td class="n">$14,900</td><td class="n">$24,000</td><td class="n up">+22%</td></tr>' +
+        '<tr class="soon"><td>Marketplaces <span class="ph">Phase 3</span></td><td class="n">–</td><td class="n">–</td><td class="n">–</td><td class="n">–</td></tr></tbody></table></div>') +
+      card('c4', 'Quotes', 1, '<div class="mini" data-cat="rev"><div><b>38%</b><span>Quote-to-order (90 days)</span></div><div><b>$9.1k</b><span>Open quotes</span></div><div><b>2</b><span>No reply 7+ days</span></div></div>' +
+        '<ul class="list"><li class="go" data-cat="rev"' + go('quote', 'Q-1182') + '><div class="what">Q-1182 walnut dining table<div class="who">$4,250 · awaiting your approval</div></div><span class="btn">Open</span></li>' +
+        '<li data-cat="rev"><div class="what">Q-1179 stair treads, Ridgeway<div class="who">$3,180 · no reply 9 days · follow-up drafted</div></div></li></ul>') +
+      card('c12', 'Quotes and custom projects', 1, quotesBoard(), seg('quotes', ['Board', 'Table'], VIEWMODE.quotes)) +
+      card('c6', 'Products (online)', 1, '<div class="scroll"><table><thead><tr><th>Top sellers this week</th><th class="n">Sold</th><th class="n">Sales</th></tr></thead><tbody>' +
+        '<tr><td>Walnut cutting board, large</td><td class="n">14</td><td class="n">$1,260</td></tr><tr><td>Live-edge shelf kit</td><td class="n">6</td><td class="n">$1,020</td></tr><tr><td>Epoxy river table blank</td><td class="n">2</td><td class="n">$940</td></tr></tbody></table></div>' +
+        '<ul class="list" style="margin-top:8px"><li data-cat="rev"><div class="what">4 slow sellers (no sale in 60 days)<div class="who">Suggested: feature in Thursday email</div></div></li><li data-cat="rev"><div class="what">2 products out of stock online but in stock in the store<div class="who">Fix: sync count</div></div><span class="pill warn">Fix</span></li></ul>') +
+      card('c6', 'Pricing and margin', 1, '<ul class="list"><li data-cat="rev"><div class="what">White oak 4/4 FAS: margin down to 31% (target 40%)<div class="who">Landed cost up 6% · suggested $10.45/bf</div></div><button type="button" class="btn act">Approve</button></li>' +
+        '<li data-cat="rev"><div class="what">Hard maple 4/4: margin 44%<div class="who">On target</div></div><span class="pill good">OK</span></li>' +
+        '<li data-cat="rev"><div class="what">Softwood duty change flagged<div class="who">3 products affected; prices held until checked</div></div><span class="pill warn">Check</span></li></ul>') +
+      card('c12', 'Trade and contractor accounts', 2, '<div class="scroll"><table><thead><tr><th>Account</th><th>Job sites</th><th class="n">Sales this month</th><th class="n">Balance</th><th>Status</th></tr></thead><tbody>' +
+        '<tr class="go"' + go('account', 'ridgeway') + '><td>Ridgeway Renovations</td><td>3</td><td class="n">$5,240</td><td class="n">$4,120</td><td><span class="pill bad">45+ days</span></td></tr>' +
+        '<tr><td>Northshore Builders</td><td>2</td><td class="n">$3,900</td><td class="n">$2,260</td><td><span class="pill warn">31 days</span></td></tr>' +
+        '<tr><td>Fine Line Cabinets</td><td>1</td><td class="n">$2,750</td><td class="n">$0</td><td><span class="pill good">Paid</span></td></tr></tbody></table></div>') +
+      '</div>';
+  }
+
+  function marketingPage() {
+    return areaHead('marketing') + '<div class="grid">' +
+      card('c7', 'Traffic and conversion', 1, '<div class="scroll"><table><thead><tr><th>Source (7 days)</th><th class="n">Visits</th><th class="n">Orders</th><th class="n">Sales</th><th class="n">Conv.</th></tr></thead><tbody>' +
+        '<tr><td>Google search</td><td class="n">1,180</td><td class="n">24</td><td class="n">$5,960</td><td class="n">2.0%</td></tr><tr><td>Email (Klaviyo)</td><td class="n">270</td><td class="n">11</td><td class="n">$2,040</td><td class="n">4.1%</td></tr>' +
+        '<tr><td>Instagram</td><td class="n">640</td><td class="n">9</td><td class="n">$2,310</td><td class="n">1.4%</td></tr><tr><td>Pinterest</td><td class="n">390</td><td class="n">7</td><td class="n">$1,480</td><td class="n">1.8%</td></tr>' +
+        '<tr><td>Ambassadors</td><td class="n">150</td><td class="n">5</td><td class="n">$1,120</td><td class="n">3.3%</td></tr><tr><td>TikTok</td><td class="n">520</td><td class="n">2</td><td class="n">$310</td><td class="n down">0.4%</td></tr></tbody></table></div>') +
+      card('c5', 'Purchase funnel (7 days)', 1, '<div class="funnel" data-cat="rev">' + [['Visits', 3150, '100%'], ['Viewed a product', 1640, '52%'], ['Added to cart', 310, '9.8%'], ['Started checkout', 142, '4.5%'], ['Bought', 58, '1.8%']].map(function (f) {
+        return '<div class="frow"><span>' + f[0] + '</span><div class="fbar"><span style="width:' + (f[1] / 3150 * 100) + '%"></span></div><span class="n">' + f[2] + '</span></div>'; }).join('') +
+        '</div><p class="soonNote" style="color:var(--bad)">Checkout drop-off on phones up 9% this week.</p>') +
+      card('c6', 'Ad spend and return (month to date)', 1, '<div class="scroll"><table><thead><tr><th>Channel</th><th class="n">Spent</th><th class="n">Budget</th><th class="n">Sales</th><th class="n">Return</th></tr></thead><tbody>' +
+        '<tr><td>Google Ads</td><td class="n">$1,240</td><td class="n">$2,000</td><td class="n">$6,820</td><td class="n up">5.5×</td></tr><tr><td>Meta (IG + FB)</td><td class="n">$860</td><td class="n">$1,200</td><td class="n">$2,750</td><td class="n">3.2×</td></tr>' +
+        '<tr><td>Pinterest Ads</td><td class="n">$310</td><td class="n">$400</td><td class="n">$1,330</td><td class="n up">4.3×</td></tr><tr class="go"' + go('channel', 'tiktok') + '><td>TikTok Ads <span class="pill bad">over budget</span></td><td class="n">$420</td><td class="n">$400</td><td class="n">$380</td><td class="n down">0.9×</td></tr></tbody></table></div>') +
+      card('c6', 'This week’s recommendations', 1, '<div class="rec"><b>Move $200 from TikTok Ads to Pinterest.</b><span>TikTok returns less than it costs; Pinterest returns 4.3× on live-edge pins.</span></div>' +
+        '<div class="rec"><b>Show delivery cost on product pages.</b><span>Phone checkout drop-off is up 9%.</span></div><div class="rec"><b>Write a walnut slab table buying guide.</b><span>Search clicks for the topic are up 40%.</span></div>') +
+      card('c4', 'Reviews and content', 1, '<div class="mini" data-cat="rev"><div><b>4.8★</b><span>Google, 212 reviews</span></div><div><b>1</b><span>Reply needed</span></div><div><b>5</b><span>Posts this week</span></div></div>') +
+      card('c4', 'Social (5 platforms)', 2, '<div class="scroll"><table><thead><tr><th>Platform</th><th class="n">Followers</th><th class="n">30-day</th></tr></thead><tbody><tr><td>Instagram</td><td class="n">8,420</td><td class="n up">+3.1%</td></tr><tr><td>Facebook</td><td class="n">5,110</td><td class="n">+0.6%</td></tr><tr><td>TikTok</td><td class="n">3,980</td><td class="n up">+7.4%</td></tr><tr><td>Pinterest</td><td class="n">2,240</td><td class="n up">+5.2%</td></tr><tr><td>YouTube</td><td class="n">640</td><td class="n">+1.9%</td></tr></tbody></table></div>') +
+      card('c4', 'SEO and competitors', 2, '<ul class="list"><li data-cat="rev"><div class="what">"live edge slab ontario" up to #3<div class="who">Search Console</div></div><span class="pill good">▲ 4</span></li><li data-cat="rev"><div class="what">A competitor cut white oak 8%<div class="who">Weekly price check</div></div><span class="pill warn">Watch</span></li><li data-cat="rev"><div class="what">Ambassador sales $1,120 this week<div class="who">Top: 2 of 11 ambassadors</div></div></li></ul>') +
+      '</div>';
+  }
+
+  function inbox() {
+    if (VIEWMODE.inbox === 'Board') {
+      return '<div class="board">' + ['New', 'Draft ready'].map(function (s) {
+        return '<div class="col"><h4><span>' + s + '</span><span>' + TICKETS.filter(function (t) { return t.st === s; }).length + '</span></h4>' + TICKETS.filter(function (t) { return t.st === s; }).map(function (t) {
+          return '<button type="button" class="kcard' + (t.bad ? ' late' : '') + '" data-cat="sup"' + go('ticket', t.id) + '><b>' + esc(t.subj) + '</b><small>' + esc(t.who) + ' · ' + t.type + ' · ' + t.wait + '</small></button>'; }).join('') + '</div>';
+      }).join('') + '<div class="col"><h4><span>Waiting on customer</span><span>3</span></h4></div><div class="col"><h4><span>Solved today</span><span>11</span></h4></div></div>';
+    }
+    return '<div class="scroll"><table><thead><tr><th>Waiting</th><th>Customer</th><th>Question</th><th>Type</th><th>Status</th></tr></thead><tbody>' + TICKETS.map(function (t) {
+      return '<tr class="go"' + go('ticket', t.id) + '><td class="n' + (t.bad ? ' down' : '') + '">' + t.wait + '</td><td>' + esc(t.who) + '</td><td>' + esc(t.subj) + '</td><td>' + t.type + '</td><td>' + (t.st === 'New' ? '<span class="pill warn">New</span>' : '<span class="pill good">Draft ready</span>') + '</td></tr>'; }).join('') + '</tbody></table></div>';
+  }
+
+  function supportPage() {
+    return areaHead('support') + '<div class="grid">' +
+      card('c12', 'Inbox: oldest first', 1, '<div class="mini" data-cat="sup"><div><b>9</b><span>Open</span></div><div><b style="color:var(--bad)">26 h</b><span>Oldest waiting</span></div><div><b>3.2 h</b><span>First reply (target 4 h)</span></div><div><b>94%</b><span>Solved within a day</span></div><div><b>83%</b><span>AI draft used</span></div></div>' + inbox(), seg('inbox', ['Table', 'Board'], VIEWMODE.inbox)) +
+      card('c6', 'Saved queues', 1, '<ul class="list"><li data-cat="sup"><div class="what">Order status<div class="who">Answered from Shopify and Square automatically</div></div><span class="pill">18 this week</span></li><li data-cat="sup"><div class="what">Project updates<div class="who">Halved since the customer portal</div></div><span class="pill">7</span></li><li data-cat="sup"><div class="what">Tariff and shipping<div class="who">Answers from the sourced knowledge base</div></div><span class="pill">6</span></li><li data-cat="sup"><div class="what">Quote requests<div class="who">Sent on to quoting</div></div><span class="pill">11</span></li></ul>') +
+      card('c6', 'Tariff knowledge base', 1, '<ul class="list"><li data-cat="sup"><div class="what">US duty on hardwood slabs<div class="who">Last checked Oct 6 · source attached</div></div><span class="pill good">Current</span></li><li data-cat="sup"><div class="what">Softwood lumber duty rate<div class="who">New notice published Oct 11</div></div><span class="pill warn">Check</span></li><li data-cat="sup"><div class="what">Shipping to the US: what’s included in price<div class="who">Last checked Sep 30</div></div><span class="pill good">Current</span></li></ul>') +
+      card('c6', 'Returns and warranty', 2, '<ul class="list"><li data-cat="sup"><div class="what">Cracked board on arrival (T-5553)<div class="who">Supplier: hardwood supplier B · photo attached</div></div><span class="pill warn">Open</span></li><li data-cat="sup"><div class="what">Defects this quarter: 4<div class="who">3 from one supplier</div></div></li></ul>') +
+      card('c6', 'Delivery problems', 2, '<ul class="list"><li data-cat="sup"><div class="what">1 delivery window missed this week<div class="who">Customer told, rebooked</div></div><span class="pill warn">1</span></li></ul>') +
+      '</div>';
+  }
+
+  function jobsBoard() {
+    var cols = ['Cut list', 'Milling', 'Finishing', 'Ready'];
+    if (VIEWMODE.jobs === 'Calendar') {
+      return '<div class="scroll"><table><thead><tr><th>Due</th><th>Job</th><th>Crew</th><th>Stage</th></tr></thead><tbody>' + JOBS.slice().sort(function (a, b) { return parseInt(a.due.slice(4)) - parseInt(b.due.slice(4)); }).map(function (j) {
+        return '<tr class="go"' + go('project', j.id) + '><td' + (j.late ? ' class="down"' : '') + '>' + j.due + '</td><td>' + j.id + ' ' + esc(j.what) + '</td><td>' + j.who + '</td><td>' + j.stage + '</td></tr>'; }).join('') + '</tbody></table></div>';
+    }
+    return '<div class="board">' + cols.map(function (c) {
+      return '<div class="col"><h4><span>' + c + '</span><span>' + JOBS.filter(function (j) { return j.stage === c; }).length + '</span></h4>' + JOBS.filter(function (j) { return j.stage === c; }).map(function (j) {
+        return '<button type="button" class="kcard' + (j.late ? ' late' : '') + '" data-cat="ops"' + go('project', j.id) + '><b>' + j.id + '</b> ' + esc(j.what) + '<small>' + j.who + ' · due ' + j.due + (j.late ? ' · late' : '') + '</small></button>'; }).join('') + '</div>';
+    }).join('') + '</div>';
+  }
+
+  function opsPage() {
+    return areaHead('ops') + '<div class="grid">' +
+      card('c12', 'Jobs in the shop', 1, jobsBoard(), seg('jobs', ['Board', 'Calendar'], VIEWMODE.jobs)) +
+      card('c6', 'Wood forecast (30 days, board feet)', 2, '<div class="scroll"><table><thead><tr><th>Species</th><th class="n">Needed</th><th class="n">On hand</th><th class="n">On order</th><th>Status</th></tr></thead><tbody>' +
+        '<tr class="go"' + go('wood', 'walnut') + '><td>Walnut 8/4</td><td class="n">940</td><td class="n">520</td><td class="n">0</td><td><span class="pill bad">Order now</span></td></tr>' +
+        '<tr><td>White oak 4/4</td><td class="n">610</td><td class="n">380</td><td class="n">400</td><td><span class="pill good">Covered</span></td></tr><tr><td>Hard maple 4/4</td><td class="n">450</td><td class="n">300</td><td class="n">0</td><td><span class="pill warn">By Oct 20</span></td></tr>' +
+        '<tr><td>Cherry 4/4</td><td class="n">180</td><td class="n">410</td><td class="n">0</td><td><span class="pill good">Covered</span></td></tr></tbody></table></div>') +
+      card('c6', 'Delivery board: today', 2, '<div class="scroll"><table><thead><tr><th>Truck</th><th>Stops</th><th>Load</th><th>Status</th></tr></thead><tbody><tr><td>Truck 1 · Dan</td><td>4 (Hamilton, Grimsby)</td><td>Treads, 2 slabs</td><td><span class="pill good">Loaded</span></td></tr><tr><td>Truck 2 · Priya</td><td>2 (Burlington)</td><td>Bar top P-219 parts</td><td><span class="pill warn">Loading</span></td></tr><tr><td>Parcel</td><td>7 Shopify orders</td><td>Labels printed</td><td><span class="pill good">Ready</span></td></tr></tbody></table></div>') +
+      card('c6', 'Staff', 2, '<ul class="list"><li data-cat="ops"><div class="what">Hours awaiting your OK: 6 staff, 214.5 h<div class="who">Ops manager approved · 9 h overtime</div></div><button type="button" class="btn act">Send to payroll</button></li><li data-cat="ops"><div class="what">2 time-off requests<div class="who">Oct 24, Nov 1</div></div></li><li data-cat="ops"><div class="what">Forklift certificate expires in 18 days<div class="who">1 staff member</div></div><span class="pill warn">Book</span></li></ul>') +
+      card('c6', 'Special orders and equipment', 3, '<ul class="list"><li data-cat="ops"><div class="what">3 special orders on the way<div class="who">1 due today: quartersawn oak for P-220</div></div></li><li data-cat="ops"><div class="what">Planer blades due for change<div class="who">Every 40 h of use · 36 h now</div></div><span class="pill warn">Soon</span></li></ul>') +
+      '</div>';
+  }
+
+  function moneyPage() {
+    return areaHead('money') + '<div class="grid">' +
+      card('c8', 'Cash flow: next 13 weeks', 2, '<div class="scroll"><svg class="chart" id="cashChart" viewBox="0 0 640 200" width="100%" role="img" aria-label="Forecast cash balance for the next 13 weeks"></svg></div>') +
+      card('c4', 'Profit, month to date', 2, '<div class="scroll"><table><tbody><tr><td>Sales</td><td class="n">$46,300</td></tr><tr><td>Cost of wood</td><td class="n">$19,800</td></tr><tr><td>Labour</td><td class="n">$11,200</td></tr><tr><td>Marketing (incl. ads)</td><td class="n">$3,900</td></tr><tr><td>Other costs</td><td class="n">$4,100</td></tr><tr><td><b>Profit</b></td><td class="n"><b>$7,300</b></td></tr><tr><td>vs budget</td><td class="n up">+$900</td></tr></tbody></table></div>') +
+      card('c6', 'Who owes us / who we owe', 2, '<div class="scroll"><table><thead><tr><th></th><th class="n">Current</th><th class="n">31–45</th><th class="n">45+</th></tr></thead><tbody><tr class="go"' + go('account', 'ridgeway') + '><td>Customers owe us</td><td class="n">$8,900</td><td class="n">$2,260</td><td class="n down">$4,120</td></tr><tr><td>We owe suppliers</td><td class="n">$12,600</td><td class="n">$0</td><td class="n">$0</td></tr></tbody></table></div>') +
+      card('c6', 'Receipts and sales tax', 2, '<ul class="list"><li data-cat="fnd"><div class="what">3 receipts to QuickBooks ($486.20)<div class="who">Read from phone photos: fuel, blades, finishing oil</div></div><button type="button" class="btn act">Post</button></li><li data-cat="fnd"><div class="what">HST set aside this quarter: $9,840<div class="who">Ready to file Jan 31</div></div><span class="pill good">On track</span></li></ul>') +
+      '</div>';
+  }
+
+  /* ---------- details (level 3) ---------- */
+  function detail(kind, id) {
+    var A, body;
+    if (kind === 'quote') {
+      A = 'sales';
+      body = '<div class="detail"><div class="card"><header><h3>Quote ' + id + ' · M. Laurent</h3><div class="meta"><span class="pill warn">Awaiting approval</span></div></header>' +
+        '<div class="scroll"><table><thead><tr><th>Line</th><th class="n">Qty</th><th class="n">Rate</th><th class="n">Amount</th></tr></thead><tbody>' +
+        '<tr><td>Walnut live-edge slab 8/4, 96" × 40"</td><td class="n">53 bf</td><td class="n">$38.00</td><td class="n">$2,014</td></tr><tr><td>Flattening, sanding, epoxy fill</td><td class="n">9 h</td><td class="n">$85.00</td><td class="n">$765</td></tr>' +
+        '<tr><td>Hardwax oil finish</td><td class="n">1</td><td class="n">$240</td><td class="n">$240</td></tr><tr><td>Steel trapezoid legs</td><td class="n">1 set</td><td class="n">$560</td><td class="n">$560</td></tr><tr><td>Waste allowance (12%, from job history)</td><td class="n">6 bf</td><td class="n">$38.00</td><td class="n">$228</td></tr><tr><td>Delivery, local</td><td class="n">1</td><td class="n">$120</td><td class="n">$120</td></tr>' +
+        '<tr><td colspan="3"><b>Total (before HST)</b></td><td class="n"><b>$3,927</b></td></tr></tbody></table></div>' +
+        '<dl class="kv" style="margin-top:12px"><dt>Margin</dt><dd>41% (target 40%)</dd><dt>Similar jobs</dt><dd>6 in the last year, average 10.5 h labour</dd><dt>Deposit</dt><dd>50% by Square link once signed</dd></dl>' +
+        '<div class="actions"><button type="button" class="btn solid act">Approve and send</button><button type="button" class="btn">Edit</button></div></div>' +
+        '<div class="card"><header><h3>Customer</h3></header><dl class="kv"><dt>Since</dt><dd>2024</dd><dt>Orders</dt><dd>3 · $1,180</dd><dt>Source</dt><dd>Instagram</dd><dt>Last contact</dt><dd>Oct 10, asked about walnut</dd></dl></div></div>';
+    } else if (kind === 'project') {
+      A = 'ops';
+      var j = JOBS.filter(function (x) { return x.id === id; })[0] || QUOTES.filter(function (x) { return x.id === id; })[0] || {};
+      var st = ['Quote', 'Deposit', 'Approved', 'Cut list', 'Milling', 'Finishing', 'Ready', 'Delivered', 'Paid'], cur = st.indexOf(j.stage);
+      body = '<div class="detail"><div class="card"><header><h3>Project ' + id + ' · ' + esc(j.what || '') + '</h3><div class="meta">' + (j.late ? '<span class="pill bad">Late</span>' : '<span class="pill good">On time</span>') + '</div></header>' +
+        '<ul class="timeline">' + st.map(function (s, i) { return '<li class="' + (i < cur ? 'done' : i === cur ? 'now' : '') + '">' + s + '</li>'; }).join('') + '</ul>' +
+        '<dl class="kv" style="margin-top:12px"><dt>Crew</dt><dd>' + (j.who && j.who.indexOf('Crew') === 0 ? j.who : 'Crew B') + '</dd><dt>Due</dt><dd>' + (j.due || 'Oct 8') + '</dd><dt>Materials</dt><dd>Walnut 8/4, 41 bf (from stock)</dd><dt>Hours so far</dt><dd>14.5 of 12 quoted</dd><dt>Margin</dt><dd>Quoted 42% · now 34% (extra finishing time)</dd></dl>' +
+        '<div class="actions"><button type="button" class="btn act">Move to next stage</button><button type="button" class="btn">Add photos</button></div></div>' +
+        '<div class="card" data-cat="sup"><header><h3>What the customer sees</h3><span class="tag">Customer portal</span></header><p style="margin:0 0 8px">Your bar top is in <b>finishing</b>. New ready date: <b>Oct 16</b>. 3 new photos.</p><p class="soonNote" style="margin:0">Each stage change sends the customer an update automatically.</p></div></div>';
+    } else if (kind === 'ticket') {
+      A = 'support';
+      var t = TICKETS.filter(function (x) { return x.id === id; })[0];
+      body = '<div class="detail"><div class="card"><header><h3>' + t.id + ' · ' + esc(t.subj) + '</h3><div class="meta"><span class="pill bad">Waiting ' + t.wait + '</span></div></header>' +
+        '<div class="email">From: ' + esc(t.who) + '\nHi, I was told my bar top would be ready last week. Any update? We have guests coming on the 20th.</div>' +
+        '<h3 style="margin:14px 0 6px">Drafted reply (uses the live project record)</h3><div class="email draft">Hi Jim,\n\nThanks for your patience. Your live-edge bar top is in finishing now; the second coat of oil needs two more days to cure properly. It will be ready on Thursday, October 16, well before the 20th. Photos are in your project page.\n\nWould delivery on Friday morning work?\n\nThe Knotty Lumber Co.</div>' +
+        '<div class="actions"><button type="button" class="btn solid act">Send</button><button type="button" class="btn">Edit</button></div></div>' +
+        '<div class="card"><header><h3>Customer history</h3></header><dl class="kv"><dt>Project</dt><dd><button type="button" class="btn"' + go('project', 'P-214') + '>P-214 bar top</button></dd><dt>Value</dt><dd>$3,800 · deposit paid</dd><dt>Past orders</dt><dd>2 · $640</dd><dt>Tickets</dt><dd>1 earlier (solved)</dd></dl></div></div>';
+    } else if (kind === 'wood') {
+      A = 'ops';
+      body = '<div class="detail"><div class="card"><header><h3>Walnut 8/4: why it runs short</h3><div class="meta"><span class="pill bad">Order now</span></div></header><div class="scroll"><table><thead><tr><th>Needed by</th><th class="n">Board feet</th></tr></thead><tbody>' +
+        '<tr><td>P-219 walnut bar top (in production)</td><td class="n">310</td></tr><tr><td>Q-1182 dining table (quote, 70% likely)</td><td class="n">41</td></tr><tr><td>Open Shopify orders</td><td class="n">95</td></tr><tr><td>Expected store sales, 30 days</td><td class="n">420</td></tr><tr><td>Waste allowance</td><td class="n">74</td></tr><tr><td><b>Total needed</b></td><td class="n"><b>940</b></td></tr><tr><td>On hand</td><td class="n">520</td></tr><tr><td><b>Short</b></td><td class="n down"><b>420</b></td></tr></tbody></table></div></div>' +
+        '<div class="card"><header><h3>Suggested purchase order</h3></header><dl class="kv"><dt>Supplier</dt><dd>Hardwood supplier A</dd><dt>Order</dt><dd>1,200 bf walnut 8/4</dd><dt>Lead time</dt><dd>9 days</dd><dt>Landed cost</dt><dd>$14.20/bf incl. freight</dd></dl><div class="actions"><button type="button" class="btn solid act">Approve PO</button></div></div></div>';
+    } else if (kind === 'channel') {
+      A = 'marketing';
+      body = '<div class="card"><header><h3>TikTok Ads · month to date</h3><div class="meta"><span class="pill bad">0.9× return</span></div></header><div class="scroll"><table><thead><tr><th>Campaign</th><th class="n">Spent</th><th class="n">Clicks</th><th class="n">Sales</th><th class="n">Return</th></tr></thead><tbody><tr><td>Slab reveal videos</td><td class="n">$260</td><td class="n">1,140</td><td class="n">$310</td><td class="n">1.2×</td></tr><tr><td>Workshop tour</td><td class="n">$160</td><td class="n">820</td><td class="n">$70</td><td class="n down">0.4×</td></tr></tbody></table></div>' +
+        '<div class="rec" style="margin-top:12px"><b>Recommendation: pause "Workshop tour", move $200 to Pinterest.</b><span>Advice only. Nothing changes in the ad account without your OK.</span></div></div>';
+    } else if (kind === 'account') {
+      A = 'money';
+      body = '<div class="detail"><div class="card"><header><h3>Ridgeway Renovations · contractor account</h3><div class="meta"><span class="pill bad">$4,120 over 45 days</span></div></header><div class="scroll"><table><thead><tr><th>Job site</th><th class="n">Invoiced</th><th class="n">Owing</th><th class="n">Days</th></tr></thead><tbody><tr><td>14 Elm St (stairs)</td><td class="n">$4,120</td><td class="n">$4,120</td><td class="n down">52</td></tr><tr><td>Lakeshore condo</td><td class="n">$2,260</td><td class="n">$0</td><td class="n">–</td></tr><tr><td>Main St shop fit-out</td><td class="n">$3,180</td><td class="n">quoted</td><td class="n">–</td></tr></tbody></table></div>' +
+        '<div class="actions"><button type="button" class="btn solid act">Send drafted reminder</button><button type="button" class="btn">Hold new orders</button></div></div>' +
+        '<div class="card"><header><h3>Terms</h3></header><dl class="kv"><dt>Terms</dt><dd>Net 30</dd><dt>Credit limit</dt><dd>$10,000</dd><dt>Pricing</dt><dd>Trade tier 2 (−12%)</dd><dt>This year</dt><dd>$31,400 sales</dd></dl></div></div>';
+    }
+    return { area: A, html: '<div class="areaHead" data-cat="' + AREAS[A].cat + '"><h2>' + AREAS[A].name + '</h2><span class="sum">Detail</span></div>' + body };
+  }
+
+  function worker() {
+    return '<div class="phone"><h3>Tuesday · Crew B</h3><button type="button" class="btn solid clock act">Clock in</button>' +
+      '<h3>My jobs today</h3><div class="job"><b>P-214 Live-edge bar top</b><small>Finishing: second oil coat · due Oct 16</small></div><div class="job"><b>P-216 Oak dining table</b><small>Finishing: sand to 180 · due Oct 15</small></div>' +
+      '<div class="actions"><button type="button" class="btn">Add photos</button><button type="button" class="btn">Request time off</button><button type="button" class="btn">Report a safety issue</button></div>' +
+      '<p class="soonNote">Workers see only this screen on their phone.</p></div>';
+  }
+
+  /* ---------- router ---------- */
+  var stack = [];
+  function label(v) {
+    var p = v.split(':');
+    if (p[0] === 'home') return 'Home';
+    if (p[0] === 'needs') return 'Needs you';
+    if (p[0] === 'area') return AREAS[p[1]].name;
+    if (p[0] === 'worker') return 'My jobs';
+    return p[1] === 'walnut' ? 'Walnut 8/4' : p[1] === 'tiktok' ? 'TikTok Ads' : p[1] === 'ridgeway' ? 'Ridgeway Renovations' : p[1];
+  }
+  function render() {
+    var v = stack[stack.length - 1], p = v.split(':'), html = '';
+    if (p[0] === 'home') html = home();
+    else if (p[0] === 'needs') html = needs();
+    else if (p[0] === 'worker') html = worker();
+    else if (p[0] === 'area') html = ({ sales: salesPage, marketing: marketingPage, support: supportPage, ops: opsPage, money: moneyPage })[p[1]]();
+    else html = detail(p[0], p[1]).html;
+    document.getElementById('dash').innerHTML = html;
+    document.getElementById('crumbs').innerHTML = stack.map(function (s, i) {
+      return i === stack.length - 1 ? '<span>' + esc(label(s)) + '</span>' : '<button type="button" data-crumb="' + i + '">' + esc(label(s)) + '</button><span class="sep">›</span>';
+    }).join('');
+    if (document.getElementById('salesChart')) salesChart();
+    if (document.getElementById('cashChart')) cashChart();
+  }
+  function open(v) {
+    var p = v.split(':');
+    if (p[0] === 'area' || p[0] === 'needs') stack = [stack[0], v];
+    else if (['quote', 'project', 'ticket', 'wood', 'channel', 'account'].indexOf(p[0]) >= 0) {
+      var a = detail(p[0], p[1]).area, cur = stack[stack.length - 1];
+      if (cur.indexOf('area:') !== 0 && cur !== 'needs') stack = [stack[0], 'area:' + a];
+      if (stack[stack.length - 1].split(':')[0] === p[0]) stack.pop();
+      stack.push(v);
+    }
+    render();
+    var d = document.getElementById('dashboard');
+    if (d.getBoundingClientRect().top < 0) d.scrollIntoView({ block: 'start' });
+  }
+  function setRole() {
+    var r = document.getElementById('role').value;
+    stack = r === 'worker' ? ['worker'] : r === 'support' ? ['home', 'area:support'] : r === 'ops' ? ['home', 'area:ops'] : ['home'];
+    render();
+  }
+
+  var dash = document.getElementById('dashboard');
+  dash.addEventListener('click', function (e) {
+    var c = e.target.closest('[data-crumb]');
+    if (c) { stack = stack.slice(0, +c.getAttribute('data-crumb') + 1); render(); return; }
+    var sg = e.target.closest('[data-seg]');
+    if (sg) { VIEWMODE[sg.getAttribute('data-seg')] = sg.getAttribute('data-val'); render(); return; }
+    var a = e.target.closest('.act');
+    if (a) { if (!a.classList.contains('done')) { a.textContent = 'Done (mock)'; a.classList.add('done'); a.classList.remove('solid'); } return; }
+    var g = e.target.closest('[data-go]');
+    if (g) open(g.getAttribute('data-go'));
+  });
+  dash.addEventListener('keydown', function (e) {
+    if (e.key !== 'Enter') return;
+    var g = e.target.closest('[data-go]');
+    if (g && g.tagName !== 'BUTTON') { e.preventDefault(); open(g.getAttribute('data-go')); }
+  });
+  document.getElementById('role').addEventListener('change', setRole);
+
+  var q = document.getElementById('q'), res = document.getElementById('results');
+  q.addEventListener('input', function () {
+    var s = q.value.trim().toLowerCase();
+    if (!s) { res.hidden = true; return; }
+    var hits = SEARCH.filter(function (x) { return (x.t + ' ' + x.s).toLowerCase().indexOf(s) >= 0; });
+    res.innerHTML = hits.length ? hits.map(function (h) { return '<button type="button" data-go="' + h.v + '">' + esc(h.t) + '<small>' + esc(h.s) + '</small></button>'; }).join('') : '<button type="button" disabled>No matches in the sample data<small>Try walnut, Morrison, Ridgeway or TikTok</small></button>';
+    res.hidden = false;
+  });
+  res.addEventListener('click', function (e) {
+    var g = e.target.closest('[data-go]');
+    if (!g) return;
+    res.hidden = true; q.value = '';
+    if (stack[0] === 'worker') { document.getElementById('role').value = 'owner'; stack = ['home']; }
+    open(g.getAttribute('data-go'));
+  });
+  document.addEventListener('click', function (e) { if (!e.target.closest('.searchwrap')) res.hidden = true; });
+
+  /* ---------- charts (sample data) ---------- */
+  var NS = 'http://www.w3.org/2000/svg';
+  function mk(svg, tag, attrs) { var e = document.createElementNS(NS, tag); for (var k in attrs) e.setAttribute(k, attrs[k]); svg.appendChild(e); return e; }
+  function axes(svg, W, H, L, R, T, B, max, step, fmt) {
+    var ph = H - T - B, y = function (v) { return T + ph - v / max * ph; };
+    for (var g = 0; g <= max; g += step) {
+      mk(svg, 'line', { x1: L, x2: W - R, y1: y(g), y2: y(g), stroke: 'var(--line)', 'stroke-width': 1 });
+      mk(svg, 'text', { x: L - 6, y: y(g) + 4, 'text-anchor': 'end' }).textContent = fmt(g);
+    }
+    return y;
+  }
+  function salesChart() {
+    var svg = document.getElementById('salesChart');
+    var sq = [2.4, 3.1, 2.8, 3.6, 4.2, 5.1, 1.9, 2.6, 3.0, 2.7, 3.9, 4.6, 5.4, 3.1], sh = [1.1, 1.3, 0.9, 1.6, 1.4, 2.2, 1.8, 1.2, 1.5, 1.0, 1.7, 1.9, 2.4, 1.7];
+    var W = 640, H = 200, L = 44, R = 10, T = 10, B = 26, y = axes(svg, W, H, L, R, T, B, 8, 2, function (g) { return '$' + g + 'k'; });
+    var bw = (W - L - R) / sq.length, labels = ['Sep 29', '', '', '', '', '', 'Oct 5', '', '', '', '', '', '', 'Oct 12'];
+    for (var i = 0; i < sq.length; i++) {
+      var x = L + i * bw + bw * 0.18, w = bw * 0.64;
+      mk(svg, 'rect', { x: x, y: y(sq[i]), width: w, height: y(0) - y(sq[i]), fill: 'var(--rev)', rx: 2 });
+      mk(svg, 'rect', { x: x, y: y(sq[i] + sh[i]), width: w, height: y(sq[i]) - y(sq[i] + sh[i]), fill: 'var(--rev-bg)', stroke: 'var(--rev)', 'stroke-width': 1, rx: 2 });
+      if (labels[i]) mk(svg, 'text', { x: x + w / 2, y: H - 8, 'text-anchor': 'middle' }).textContent = labels[i];
+    }
+    mk(svg, 'text', { x: W - R, y: T + 10, 'text-anchor': 'end' }).textContent = 'solid = in store · light = online';
+  }
+  function cashChart() {
+    var svg = document.getElementById('cashChart');
+    var v = [38.2, 35.1, 31.8, 34.5, 29.9, 27.2, 30.6, 26.8, 21.4, 24.9, 28.3, 31.0, 33.6];
+    var W = 640, H = 200, L = 44, R = 10, T = 10, B = 26, y = axes(svg, W, H, L, R, T, B, 40, 10, function (g) { return '$' + g + 'k'; });
+    var bw = (W - L - R) / v.length;
+    mk(svg, 'line', { x1: L, x2: W - R, y1: y(15), y2: y(15), stroke: 'var(--bad)', 'stroke-width': 1.5, 'stroke-dasharray': '5 4' });
+    mk(svg, 'text', { x: W - R, y: y(15) - 5, 'text-anchor': 'end' }).textContent = 'floor $15k';
+    for (var i = 0; i < v.length; i++) {
+      var x = L + i * bw + bw * 0.2, w = bw * 0.6;
+      mk(svg, 'rect', { x: x, y: y(v[i]), width: w, height: y(0) - y(v[i]), fill: v[i] === 21.4 ? 'var(--warn)' : 'var(--fnd)', rx: 2 });
+      if (i % 3 === 0) mk(svg, 'text', { x: x + w / 2, y: H - 8, 'text-anchor': 'middle' }).textContent = 'Wk ' + (i + 1);
+    }
+  }
+
+  setRole();
+
+  /* =====================================================================
+     PLAN: two-level accordion built from the same module list as the plan document.
+     ===================================================================== */
+  var CATNAME = { rev: 'Revenue', sup: 'Customer support', ops: 'Operations', fnd: 'Foundation' };
+  var PHASE = {
+    1: { name: 'Phase 1', when: 'Weeks 1–4', what: 'Revenue and customer support first: everything that wins sales, protects margin or answers customers faster, plus the foundation it all runs on.' },
+    2: { name: 'Phase 2', when: 'Weeks 5–7', what: 'Back office and growth: payroll, books, stock and cash, plus the content engine and deeper marketing analysis.' },
+    3: { name: 'Phase 3', when: 'Week 8', what: 'Finishing: HR, purchasing, scheduling, equipment and safety, extra sales channels and Ask the hub. Then polish and staff training.' }
+  };
+  function tag(cat) { return '<span class="tag" data-cat="' + cat + '">' + CATNAME[cat] + '</span>'; }
+  function ph(p) { return '<span class="ph' + (p === 1 ? ' p1' : '') + '">' + PHASE[p].name + '</span>'; }
+  function counts(mods) {
+    var c = {}; mods.forEach(function (m) { c[m.cat] = (c[m.cat] || 0) + 1; });
+    return Object.keys(CATNAME).filter(function (k) { return c[k]; }).map(function (k) { return '<span class="tag" data-cat="' + k + '">' + c[k] + ' ' + CATNAME[k] + '</span>'; }).join('');
+  }
+  function moduleHTML(m) {
+    return '<details class="l2 dim-able" data-cat="' + m.cat + '"><summary><span class="n">' + CHEV + esc(m.name) + '</span>' + tag(m.cat) + ph(m.pri) + '</summary><ul>' +
+      m.items.map(function (i) { return '<li>' + esc(i) + '</li>'; }).join('') + '</ul></details>';
+  }
+  function l1(title, right, body, isOpen) {
+    return '<details class="l1"' + (isOpen ? ' open' : '') + '><summary><span class="t">' + CHEV + esc(title) + '</span><span class="counts">' + right + '</span></summary><div class="body">' + body + '</div></details>';
+  }
+  function plainList(items) { return '<ul class="plain">' + items.map(function (i) { return '<li>' + i + '</li>'; }).join('') + '</ul>'; }
+
+  var all = [];
+  MODULES.forEach(function (s) { s.modules.forEach(function (m) { all.push(m); }); });
+  var html = '';
+  html += l1('The idea', '', plainList([
+    'One custom cloud app on top of the tools the business already pays for. It doesn’t replace them.',
+    'Square, Shopify and QuickBooks stay the source of truth for sales and money.',
+    'The hub pulls their data together, does the work they can’t, and writes back only after approval.',
+    'Separate logins for owner, ops manager, support, workers (phone), customers and ambassadors; each sees only what they need.',
+    'AI writes the code and drafts replies, quotes, posts and reports. People approve.',
+    'Owned by the business: its own accounts, code, data and keys.'
+  ]), true);
+  html += l1('The dashboard: three levels', '', plainList([
+    '<b>Home:</b> five tiles (Sales, Marketing, Customer support, Operations, Money), each with one number, a comparison, a trend line and a green/amber/red dot, plus one "Needs you" bar for approvals and red alerts.',
+    '<b>Area page:</b> four to six panels for that area. Lists open as a board, table or calendar.',
+    '<b>Detail:</b> one quote, project, ticket, account or product, with the approve button where the decision is made.',
+    'Date range with "compare to", and one search box for customers, quotes, projects and orders.',
+    'Each role lands on its own page: support on Customer support, the ops manager on Operations, workers on a phone view of today’s jobs.',
+    'Patterns borrowed from the leading systems (NetSuite, Shopify, Zendesk, Odoo, and lumber yard systems such as BisTrack and Spruce), kept to five tiles.'
+  ]), false);
+  html += l1('Phases: what arrives when', '<span class="ph">About 8 weeks</span>', [1, 2, 3].map(function (p) {
+    var mods = all.filter(function (m) { return m.pri === p; });
+    return '<details class="l2"><summary><span class="n">' + CHEV + PHASE[p].name + ' · ' + PHASE[p].when + '</span><span class="counts">' + counts(mods) + '</span></summary>' +
+      '<ul><li>' + PHASE[p].what + '</li></ul><div class="phase-mods">' + mods.map(function (m) { return '<span class="tag dim-able" data-cat="' + m.cat + '">' + esc(m.name) + '</span>'; }).join('') + '</div></details>';
+  }).join(''), true);
+  MODULES.forEach(function (s) { html += l1(s.title, counts(s.modules) + '<span class="ph">' + s.modules.length + ' parts</span>', s.modules.map(moduleHTML).join(''), false); });
+  html += l1('Reports', '', [
+    ['Morning email (daily, 7 a.m.)', 'rev', 1, ['Yesterday’s sales, conversion rate and top traffic source', 'Ad spend vs sales', 'Jobs due or late, deliveries today, quotes awaiting reply', 'Open support tickets and new reviews', 'Hours awaiting approval, stock shortfalls, cash alerts, certificates expiring']],
+    ['Weekly (Monday)', 'rev', 1, ['Sales vs target, project pipeline, quotes won and lost', 'Payroll summary, wood order suggestions, overdue invoices, 13-week cash flow', 'Ambassador sales', 'Marketing briefing: traffic by source, funnel, SEO movers, social by platform, ad return by channel, competitor changes, recommendations']],
+    ['Monthly (1st)', 'ops', 2, ['Profit and loss from QuickBooks, budget vs actual', 'Margins by product and project, landed cost changes', 'Receivables aging, supplier scorecard, returns and defects', 'Customer growth, reviews and rating, best landing pages and content, social growth', 'Ad spend vs budget, competitor price and ranking changes']],
+    ['Quarterly', 'ops', 2, ['Trends and sales tax ready for filing', 'Staffing cost vs revenue', 'What’s working in marketing; marketing cost as % of sales', 'Competitive position']]
+  ].map(function (r) { return moduleHTML({ name: r[0], cat: r[1], pri: r[2], items: r[3] }); }).join(''), false);
+  html += l1('Cost', '', plainList([
+    'New accounts opened and paid by the business: about $115–455 USD a month (hosting, database, AI usage, build subscription, optional texts and e-signatures).',
+    'Tools already paid for stay as they are: Square, Shopify, QuickBooks, Klaviyo, Semrush, Google Workspace.',
+    'Ad spend is separate and set by the owner.',
+    'Off-the-shelf ERPs at this scope typically cost $300–1,500 a month and don’t fit custom lumber work well.'
+  ]), false);
+  html += l1('Safeguards', '', plainList([
+    'Every QuickBooks entry, price change, quote, post and customer email is approved first.',
+    'Ad accounts are connected read-only; recommendations are advice only.',
+    'AI answers tariff questions only from a sourced knowledge base; anything else goes to the owner.',
+    'No card data stored; staff see only what their role needs; customer portal links are private and expire.',
+    'Daily backups, an off-site weekly copy, an audit log, and a recovery test before go-live.'
+  ]), false);
+  document.getElementById('acc').innerHTML = html;
+  document.getElementById('openAll').addEventListener('click', function () { document.querySelectorAll('#acc details').forEach(function (d) { d.open = true; }); });
+  document.getElementById('closeAll').addEventListener('click', function () { document.querySelectorAll('#acc details').forEach(function (d) { d.open = false; }); });
+  var plan = document.getElementById('plan');
+  document.querySelectorAll('.hl button').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var f = b.getAttribute('data-f');
+      if (f) plan.setAttribute('data-focus', f); else plan.removeAttribute('data-focus');
+      document.querySelectorAll('.hl button').forEach(function (x) { x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
+    });
+  });
+})();
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
+<script>
+  mermaid.initialize({ startOnLoad: false, theme: window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'default', flowchart: { useMaxWidth: true } });
+  mermaid.run({ querySelector: 'pre.mermaid' });
+</script>
+</body>
+</html>
